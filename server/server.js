@@ -1,0 +1,58 @@
+// server.js
+const dotenv = require('dotenv');
+dotenv.config();
+const express = require('express');
+const cors = require('cors');
+const connectToDatabase = require('./lib/dbConn');
+const http = require("http");
+const cookieParser = require("cookie-parser");
+
+
+// Importing Router
+const authRoute = require("./router/auth-router");
+const userRoute = require("./router/user-router");
+const adminRoute = require("./router/admin-router");
+const devloperRoute = require('./router/developer-router');
+
+// Importing Middlewares
+const errorMiddleware = require("./middlewares/error-middleware");
+
+// Server
+const app = express();
+const server = http.createServer(app);
+app.use(cookieParser());
+
+const PORT = process.env.PORT || 5000;
+app.use(cors({ origin: process.env.CORS_SERVER, credentials: true }));
+app.use(express.json());
+
+// Error Catch
+app.use(errorMiddleware);
+
+// Defining Routes & API
+app.use("/api/auth", authRoute);
+app.use("/api/user", userRoute);
+app.use("/api/admin", adminRoute);
+app.use("/api/dev", devloperRoute);
+
+
+app.get('/', (req, res) => {
+    res.send('Welcome to the API');
+});
+
+
+
+
+connectToDatabase()
+    .then(() => {
+        console.log("Connected to MongoDB successfully");
+        server.listen(PORT, () => {
+            console.log(`Server running on port ${PORT}`);
+        });
+    })
+    .catch((error) => {
+        console.error("Error connecting to MongoDB:", error);
+        process.exit(1);
+    });
+
+
