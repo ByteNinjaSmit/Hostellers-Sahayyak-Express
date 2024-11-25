@@ -1,7 +1,6 @@
 import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import './App.css'
-import HeroSection from "./pages/Home";
 import MainNavabar from "./components/Navbar";
 import Dashboard from "./pages/client/Dashboard";
 import Login from "./pages/Login";
@@ -27,6 +26,7 @@ import EditAttendance from "./pages/admin/Edit-Attendance";
 import NewAttendance from "./pages/admin/New-Attendance";
 import ViewAttendance from "./pages/admin/View-Attendance";
 import GrievanceViewAdmin from "./pages/admin/Single-Issue";
+import HeroSection from "./pages/Home";
 
 
 

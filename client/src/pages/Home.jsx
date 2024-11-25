@@ -1,7 +1,7 @@
 import React from "react";
-import { useAuth } from "../store/auth";
 import { FaQuestionCircle, FaInfoCircle, FaEnvelope } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { useAuth } from "../store/auth";
 
 const HeroSection = () => {
   const {isLoggedIn } = useAuth();
