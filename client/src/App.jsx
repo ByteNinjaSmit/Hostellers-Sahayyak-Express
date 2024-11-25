@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import './App.css'
+import "./App.css";
 import MainNavabar from "./components/Navbar";
 import Dashboard from "./pages/client/Dashboard";
 import Login from "./pages/Login";
@@ -27,62 +27,116 @@ import NewAttendance from "./pages/admin/New-Attendance";
 import ViewAttendance from "./pages/admin/View-Attendance";
 import GrievanceViewAdmin from "./pages/admin/Single-Issue";
 import HeroSection from "./pages/Home";
-
-
+import { AuthProvider } from "./store/auth.jsx";
+import Error from "./pages/Error";
 
 const App = () => {
-
   return (
     <>
-      <BrowserRouter>
-        <div className="app">
-          {/* Navbar */}
-          <MainNavabar />
-          {/* Routes */}
-          <Routes>
-            <Route exact path="/" element={<HeroSection />} />
-            <Route exact path="/login" element={<Login />} />
-            <Route exact path="/contact" element={<HelpSupportPage />} />
-            <Route exact path="/contact/track-complaint/:id" element={<GrievanceViewPublic />} />
-            <Route exact path="/faq" element={<FAQ />} />
-            <Route exact path="/rule-regulations" element={<RulesAndRegulations />} />
+      {" "}
+      <AuthProvider>
+        <BrowserRouter>
+          <div className="app">
+            {/* Navbar */}
+            <MainNavabar />
+            {/* Routes */}
+            <Routes>
+              <Route exact path="/" element={<HeroSection />} />
+              <Route exact path="/login" element={<Login />} />
+              <Route exact path="/contact" element={<HelpSupportPage />} />
+              <Route
+                exact
+                path="/contact/track-complaint/:id"
+                element={<GrievanceViewPublic />}
+              />
+              <Route exact path="/faq" element={<FAQ />} />
+              <Route
+                exact
+                path="/rule-regulations"
+                element={<RulesAndRegulations />}
+              />
 
-            {/* User Routes */}
-            <Route exact path="/client" element={<UserLayout />} >
+              {/* User Routes */}
+              <Route exact path="/client" element={<UserLayout />}>
+                <Route exact path="dashboard" element={<Dashboard />} />
+                <Route
+                  exact
+                  path="edit-profile"
+                  element={<EditProfilePage />}
+                />
+                <Route
+                  exact
+                  path=":user/issue/:categories"
+                  element={<HostelIssuesCategory />}
+                />
+                <Route
+                  exact
+                  path=":user/issue/:categories/:issue/form"
+                  element={<GrievanceForm />}
+                />
+                <Route
+                  exact
+                  path="singleissue/:id/:user"
+                  element={<GrievanceView />}
+                />
+              </Route>
+              {/* Admin Routes */}
+              <Route exact path="/admin" element={<AdminLayout />}>
+                <Route exact path="dashboard" element={<AdminDashboard />} />
+                <Route
+                  exact
+                  path="overview"
+                  element={<GrievanceManagementSystem />}
+                />
+                <Route
+                  exact
+                  path="single-issue/view/:id"
+                  element={<GrievanceViewAdmin />}
+                />
+                <Route exact path="hostellers" element={<UserManagement />} />
+                <Route exact path="new-hosteller" element={<AddNewUser />} />
+                <Route
+                  exact
+                  path="edit-hosteller/:id"
+                  element={<EditUserFromAdmin />}
+                />
+                <Route
+                  exact
+                  path="edit-profile"
+                  element={<EditUserOfAdmin />}
+                />
+                <Route
+                  exact
+                  path="overview-attendance"
+                  element={<HostelAttendanceOverview />}
+                />
+                <Route
+                  exact
+                  path="overview-attendance/take-attendance"
+                  element={<NewAttendance />}
+                />
+                <Route
+                  exact
+                  path="overview-attendance/edit-attendance/:id"
+                  element={<EditAttendance />}
+                />
+                <Route
+                  exact
+                  path="overview-attendance/view-attendance/:id"
+                  element={<ViewAttendance />}
+                />
+              </Route>
 
-              <Route exact path="dashboard" element={<Dashboard />} />
-              <Route exact path="edit-profile" element={<EditProfilePage />} />
-              <Route exact path=":user/issue/:categories" element={<HostelIssuesCategory />} />
-              <Route exact path=":user/issue/:categories/:issue/form" element={<GrievanceForm />} />
-              <Route exact path="singleissue/:id/:user" element={<GrievanceView />} />
-            </Route>
-            {/* Admin Routes */}
-            <Route exact path="/admin" element={<AdminLayout />}>
-              <Route exact path="dashboard" element={<AdminDashboard />} />
-              <Route exact path="overview" element={<GrievanceManagementSystem />} />
-              <Route exact path="single-issue/view/:id" element={< GrievanceViewAdmin/>} />
-              <Route exact path="hostellers" element={<UserManagement />} />
-              <Route exact path="new-hosteller" element={<AddNewUser />} />
-              <Route exact path="edit-hosteller/:id" element={<EditUserFromAdmin />} />
-              <Route exact path="edit-profile" element={<EditUserOfAdmin />} />
-              <Route exact path="overview-attendance" element={<HostelAttendanceOverview />} />
-              <Route exact path="overview-attendance/take-attendance" element={<NewAttendance />} />
-              <Route exact path="overview-attendance/edit-attendance/:id" element={< EditAttendance/>} />
-              <Route exact path="overview-attendance/view-attendance/:id" element={< ViewAttendance/>} />
-              {/* <Route exact path="dashboard/exam" element={<ExamDashboard />} /> */}
-              {/* <Route exact path="create-exam" element={<CreateExam />} /> */}
-            </Route>
+              <Route path="*" element={<Error />} />
+            </Routes>
 
-            {/* <Route path="*" element={<Error />} /> */}
-
-          </Routes>
-
-          {/* Footer */}
-          <MainFooter />
-        </div>
-      </BrowserRouter>
+            {/* Footer */}
+            <MainFooter />
+          </div>
+        </BrowserRouter>
+      </AuthProvider>
     </>
-  )
-}
+  );
+};
 
-export default App
+export default App;
