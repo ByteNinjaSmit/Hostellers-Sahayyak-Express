@@ -3,19 +3,19 @@ const dotenv = require('dotenv');
 dotenv.config();
 const express = require('express');
 const cors = require('cors');
-const connectToDatabase = require('./lib/dbConn');
+const connectToDatabase = require('../lib/dbConn');
 const http = require("http");
 const cookieParser = require("cookie-parser");
 const bodyParser = require('body-parser');
 
 // Importing Router
-const authRoute = require("./router/auth-router");
-const userRoute = require("./router/user-router");
-const adminRoute = require("./router/admin-router");
-const devloperRoute = require('./router/developer-router');
+const authRoute = require("../router/auth-router");
+const userRoute = require("../router/user-router");
+const adminRoute = require("../router/admin-router");
+const devloperRoute = require('../router/developer-router');
 
 // Importing Middlewares
-const errorMiddleware = require("./middlewares/error-middleware");
+const errorMiddleware = require("../middlewares/error-middleware");
 
 // Server
 const app = express();
@@ -71,3 +71,4 @@ connectToDatabase()
     console.error("Error connecting to MongoDB:", error);
   });
 
+module.exports = app;
