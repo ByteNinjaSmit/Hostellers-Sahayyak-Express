@@ -5,9 +5,9 @@ import "./index.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { NextUIProvider } from "@nextui-org/react";
-
+import { AuthProvider } from "./store/auth.jsx";
 ReactDOM.createRoot(document.getElementById("root")).render(
-
+  <AuthProvider>
     <React.StrictMode>
       <NextUIProvider>
         <App />
@@ -26,5 +26,5 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         bodyClassName="toastBody"
       />
     </React.StrictMode>
-
+    </AuthProvider>
 );
