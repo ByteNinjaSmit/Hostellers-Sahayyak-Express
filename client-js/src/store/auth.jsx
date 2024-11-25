@@ -128,9 +128,9 @@ export const AuthProvider = ({ children }) => {
 // Custom hook to use AuthContext
 export const useAuth = () => {
     const authContextValue = useContext(AuthContext);
-    console.log("authContextValue:", authContextValue);    
-    // if (!authContextValue) {
-    //     throw new Error("useAuth must be used within the AuthProvider");
-    // }
+    // console.log("authContextValue:", authContextValue);    
+    if (!authContextValue) {
+        throw new Error("useAuth must be used within the AuthProvider");
+    }
     return authContextValue;
 };
