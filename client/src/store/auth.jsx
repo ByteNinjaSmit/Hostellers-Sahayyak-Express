@@ -14,6 +14,9 @@ const getTokenFromCookies = () => {
 };
 
 export const AuthProvider = ({ children }) => {
+    useEffect(() => {
+        console.log("AuthProvider is initialized");
+      }, []);
     const [token, setToken] = useState(getTokenFromCookies());
     const [user, setUser] = useState("");
     const [isLoading, setIsLoading] = useState(true);
@@ -129,5 +132,5 @@ export const useAuth = () => {
     if (!authContextValue) {
         throw new Error("useAuth must be used within the AuthProvider");
     }
-    return authContextValue;
+    return useContext(AuthContext);
 };
