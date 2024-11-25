@@ -1,4 +1,3 @@
-"use client";
 import React, { useState, useEffect } from "react";
 import {
   FaEye,
@@ -12,7 +11,7 @@ import {
 } from "react-icons/fa";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useAuth } from "../../store/auth";
+import { useAuth } from "../../store/auth.jsx";
 
 const EditUserOfAdmin = () => {
   const [showPassword, setShowPassword] = useState(false);

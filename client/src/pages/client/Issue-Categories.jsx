@@ -1,4 +1,3 @@
-"use client";
 import React, { useState } from "react";
 import { FaBed, FaRoad, FaUsers, FaGlassWhiskey } from "react-icons/fa";
 import { IoMdArrowRoundBack } from "react-icons/io";

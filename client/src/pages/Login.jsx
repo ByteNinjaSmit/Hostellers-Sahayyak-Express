@@ -1,4 +1,3 @@
-"use client";
 import { useState, useEffect } from "react"; // Import Link for navigation
 import { Spinner } from "@nextui-org/react"; // Using Spinner for loading state
 import { toast } from "react-toastify";

@@ -1,4 +1,3 @@
-"use client"
 import React, { useState } from "react";
 import { FaChevronDown, FaChevronUp, FaBed, FaUsers, FaWifi, FaUtensils } from "react-icons/fa";
 import { MdSecurity, MdCleaningServices } from "react-icons/md";

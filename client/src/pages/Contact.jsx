@@ -1,4 +1,3 @@
-"use client";
 import React, { useState, useEffect, Suspense } from "react";
 import { FaQuestionCircle, FaFileAlt, FaSearch, FaPhoneAlt, FaInfoCircle, FaCog } from "react-icons/fa";
 import { Link,useNavigate,useParams,useSearchParams } from "react-router-dom";

@@ -1,4 +1,3 @@
-"use client";
 import React, { useEffect, useState } from "react";
 import { FaSearch, FaFilter, FaSync, FaSort } from "react-icons/fa";
 

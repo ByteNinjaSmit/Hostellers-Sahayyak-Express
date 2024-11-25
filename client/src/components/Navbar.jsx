@@ -1,4 +1,3 @@
-"use client";
 import React, { useState, useEffect } from "react";
 import {
   Navbar,
@@ -10,36 +9,32 @@ import {
   NavbarMenuItem,
   Button,
 } from "@nextui-org/react";
-import { useLocation,Link } from 'react-router-dom';
+import { useLocation, Link } from "react-router-dom";
 
 import { AcmeLogo } from "./AcmeLogo.jsx";
 import { useAuth } from "../store/auth.jsx";
 
 export default function MainNavabar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { userData, LogoutUser, isLoggedIn,isAdmin } = useAuth();
-  const location = useLocation();  
+  const { user, LogoutUser, isLoggedIn, isAdmin } = useAuth();
+  const location = useLocation();
   const [userId, setUserId] = useState(null);
 
   // Set userId and isAdmin when user data changes
   useEffect(() => {
-    if (isLoggedIn && userData) {
-      setUserId(userData._id); // Set user ID
-      // console.log("User is logged in, user data:", userData);
-    } 
-  }, [isLoggedIn, userData]);
+    if (isLoggedIn && user) {
+      setUserId(user._id); // Set user ID
+      // console.log("User is logged in, user data:", user);
+    }
+  }, [isLoggedIn, user]);
 
   const menuItems = [
     { name: "Home", to: "/" },
     ...(isLoggedIn
       ? [
           { name: "Profile", to: `/${userId}/edit-profile` },
-          ...(!isAdmin
-            ? [{ name: "Dashboard", to: `/client/dashboard` }]
-            : []),
-          ...(isAdmin
-            ? [{ name: "Dashboard", to: `/admin/dashboard` }]
-            : []),
+          ...(!isAdmin ? [{ name: "Dashboard", to: `/client/dashboard` }] : []),
+          ...(isAdmin ? [{ name: "Dashboard", to: `/admin/dashboard` }] : []),
           { name: "Help & Feedback", to: "/contact" },
           { name: "FAQ", to: "/faq" },
           { name: "Log Out", onClick: LogoutUser },
@@ -82,7 +77,7 @@ export default function MainNavabar() {
         <NavbarItem>
           {isLoggedIn && (
             <>
-            {isAdmin && (
+              {isAdmin && (
                 <Link
                   to={`/admin/dashboard`} // Admin Dashboard URL
                   color="foreground"
@@ -108,7 +103,6 @@ export default function MainNavabar() {
                   Dashboard
                 </Link>
               )}
-              
             </>
           )}
         </NavbarItem>
@@ -142,7 +136,12 @@ export default function MainNavabar() {
       <NavbarContent justify="end">
         <NavbarItem>
           {isLoggedIn ? (
-            <Button as={Link} color="danger" onClick={LogoutUser} variant="flat">
+            <Button
+              as={Link}
+              color="danger"
+              onClick={LogoutUser}
+              variant="flat"
+            >
               Logout
             </Button>
           ) : (

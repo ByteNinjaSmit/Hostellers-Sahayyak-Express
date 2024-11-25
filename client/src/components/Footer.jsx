@@ -11,7 +11,7 @@ export default function MainFooter() {
     <footer className="mt-auto w-full bg-gray-300 text-center p-5"  style={footerStyle}>
       <div>
         &copy; {new Date().getFullYear()} Copyright:{" "}
-        <Link to="/" passHref>
+        <Link to="/">
           <span style={{ color: "red", textDecoration: "none" }}>
             ByteNinjaSmits Team
           </span>
