@@ -57,6 +57,7 @@ userSchema.methods.generateToken = async function () {
         userID: this._id.toString(),
         room: this.room,
         hostelId: this.hostelId,
+        role:"student",
       },
       process.env.JWT_SECRET_KEY,
       {

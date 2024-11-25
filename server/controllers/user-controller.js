@@ -8,6 +8,7 @@ const FoodOwner = require("../models/food-owner-model");
 const NetworkConn = require("../models/network-model");
 const Safety = require("../models/safety-model");
 
+// Set up storage engine (default to memory storage)
 
 
 // -----------------
@@ -17,7 +18,7 @@ const Safety = require("../models/safety-model");
 const newIssue = async (req, res, next) => {
     try {
         const { user, issue } = req.params;
-        const { relevantData, foodownerName, foodServiceType, image } = req.body;
+        const { relevantData, foodownerName, foodServiceType,image } = req.body;
 
         // Helper function to validate relevantData
         const isValidComplaint = (relevantData) => {
@@ -118,17 +119,17 @@ const newIssue = async (req, res, next) => {
 const getIssuesAllUser = async (req, res, next) => {
     try {
         // Extract the user parameter from the request
-        const { user } = req.params;
+        const { userId } = req.params;
 
         // Fetch data from all models where `user` matches the provided user
-        const drinkWaterData = await DrinkWater.find({ user: user });
-        const roomData = await Room.find({ user: user });
-        const commonAreaData = await CommonArea.find({ user: user });
-        const corridorData = await Corridor.find({ user: user });
-        const foodQualityData = await FoodQuality.find({ user: user });
-        const foodOwnerData = await FoodOwner.find({ user: user });
-        const networkData = await NetworkConn.find({ user: user });
-        const safetyData = await Safety.find({ user: user });
+        const drinkWaterData = await DrinkWater.find({ user: userId });
+        const roomData = await Room.find({ user: userId });
+        const commonAreaData = await CommonArea.find({ user: userId });
+        const corridorData = await Corridor.find({ user: userId });
+        const foodQualityData = await FoodQuality.find({ user: userId });
+        const foodOwnerData = await FoodOwner.find({ user: userId });
+        const networkData = await NetworkConn.find({ user: userId });
+        const safetyData = await Safety.find({ user: userId });
 
         // Combine all the arrays into one with categories
         const combinedData = [

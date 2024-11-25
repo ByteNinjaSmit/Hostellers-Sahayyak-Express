@@ -231,6 +231,62 @@ const updateIssueStatus = async (req, res) => {
     }
 }
 
+// ----------------
+// Update Actions And Status from Admin
+// ------------------
+
+const updateIssue = async (req, res) => {
+    try {
+
+        // Extract the issueid from the request parameters
+        const { issueid } = req.params;
+
+        // Extract the status from the request body
+        const { status,actionLog } = req.body;
+
+        if (!status || !actionLog) {
+            return res.status(400).json({ error: "All Fields are required" });
+        }
+
+        // Array of models
+        const models = [
+            DrinkWater,
+            Room,
+            CommonArea,
+            Corridor,
+            FoodQuality,
+            FoodOwner,
+            NetworkConn,
+            Safety,
+        ];
+
+        let updatedDocument = null;
+
+        // Try to find the document and update the status
+        for (const model of models) {
+            updatedDocument = await model.findByIdAndUpdate(
+                {_id:issueid},
+                { status: status, actionLog:actionLog }, // Update the status
+                { new: true } // Return the updated document
+            ).exec();
+
+            if (updatedDocument) {
+                break; // Exit loop once the document is found and updated
+            }
+        }
+
+        // If no document was updated, return a 404 response
+        if (!updatedDocument) {
+            return res.status(404).json({ error: "Document not found" });
+        }
+
+        // Return the updated document
+        res.status(200).json({ message: "Complaint Updated successfully" });
+
+    } catch (error) {
+        next(error);
+    }
+}
 
 // ----------------
 // GET All Users
@@ -470,7 +526,7 @@ const updateAttendance = async (req, res, next) => {
         if (!id) {
             return res.status(400).json({ message: "Invalid ID" });
         }
-        const { students } = await request.json();
+        const { students } = req.body;
         if (!students || !Array.isArray(students)) {
             return res.status(400).json({ message: "Invalid data: 'students' should be an array." });
         }
@@ -489,4 +545,4 @@ const updateAttendance = async (req, res, next) => {
     }
 }
 
-module.exports = { updateIssueStatus, getIssue, getAllIssues, getUsers, getUser, deleteUser, updateUser, changePasswordUser, getHostelUsers, newAttendance, getAllAttendance, getAttendanceById, updateAttendance };
+module.exports = { updateIssueStatus, getIssue, updateIssue,getAllIssues, getUsers, getUser, deleteUser, updateUser, changePasswordUser, getHostelUsers, newAttendance, getAllAttendance, getAttendanceById, updateAttendance };

@@ -14,6 +14,7 @@ router.route("/get-all-issue").get(adminControllers.getAllIssues);
 router.route("/get-issue/:issueid").get(adminControllers.getIssue);
 // Update Status Issue
 router.route("/update-issue-status/:issueid").patch(adminControllers.updateIssueStatus);
+router.route("/update-issue/:issueid").patch(adminControllers.updateIssue);
 
 
 //---------
@@ -23,7 +24,7 @@ router.route("/update-issue-status/:issueid").patch(adminControllers.updateIssue
 // GET All User
 router.route("/get-all-user").get(adminControllers.getUsers);
 // GET Single User
-router.route("/get-user/:userid").get(adminControllers.getUser);
+router.route("/get-user/:id").get(adminControllers.getUser);
 router.route("/get-hostel-users/:hostelId").get(adminControllers.getHostelUsers);
 // Update user
 router.route("/update-user/:userId").patch(adminControllers.updateUser);

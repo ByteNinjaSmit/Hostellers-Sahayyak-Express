@@ -6,7 +6,7 @@ const cors = require('cors');
 const connectToDatabase = require('./lib/dbConn');
 const http = require("http");
 const cookieParser = require("cookie-parser");
-
+const bodyParser = require('body-parser');
 
 // Importing Router
 const authRoute = require("./router/auth-router");
@@ -25,7 +25,8 @@ app.use(cookieParser());
 const PORT = process.env.PORT || 5000;
 app.use(cors({ origin: process.env.CORS_SERVER, credentials: true }));
 app.use(express.json());
-
+app.use(bodyParser.urlencoded({extended:true,parameterLimit:1000000,limit:"500mb"}));
+app.use(bodyParser.json());
 // Error Catch
 app.use(errorMiddleware);
 
@@ -39,8 +40,6 @@ app.use("/api/dev", devloperRoute);
 app.get('/', (req, res) => {
     res.send('Welcome to the API');
 });
-
-
 
 
 connectToDatabase()

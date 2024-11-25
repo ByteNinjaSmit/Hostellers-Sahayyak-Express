@@ -21,8 +21,7 @@ const facultycomplaintSchema =new mongoose.Schema(
           required: true, // Example: "Processed", "Resolved", "In Progress"
         },
         actionTakenBy: {
-          type: mongoose.Types.ObjectId,
-          ref: "User", // Reference to the admin who took the action
+          type: String,
           required: true,
         },
         actionDate: {

@@ -159,7 +159,7 @@ const facultyLogin = async (req, res, next) => {
         }
 
         // Check if the user exists
-        const userExist = await Faculty.findOne(query).select({ password: 0 });
+        const userExist = await Faculty.findOne(query);
 
         if (!userExist) {
             return res.status(400).json({ message: "Invalid Credentials" });
@@ -171,13 +171,6 @@ const facultyLogin = async (req, res, next) => {
             // Generate token
             const token = await userExist.generateToken();
 
-            // Set the cookie with token, secure, httpOnly, and expiration options
-            // res.cookie("authToken", token, {
-            //     httpOnly: true,        // Accessible only by web server
-            //     secure: process.env.NODE_ENV === "production",  // Cookie only sent over HTTPS in production
-            //     maxAge: 60 * 60 * 1000, // Cookie expires in 1 hour
-            //     sameSite: "strict"      // Protect against CSRF
-            // });
 
             const { password, ...userWithoutPassword } = userExist.toObject();
             return res.status(200).json({

@@ -69,6 +69,7 @@ facultySchema.methods.generateToken = async function () {
         email: this.email,
         isRector: this.isRector,
         isHighAuth: this.isHighAuth,
+        role:"faculty",
       },
       process.env.JWT_SECRET_KEY,
       {
