@@ -23,7 +23,14 @@ const server = http.createServer(app);
 app.use(cookieParser());
 
 const PORT = process.env.PORT || 5000;
-app.use(cors({ origin: process.env.CORS_SERVER, credentials: true }));
+
+const corsOptions = {
+    origin:process.env.CORS_SERVER,
+    methods: "GET,POST,DELETE,PATCH,HEAD,PUT",
+    credentials: true,
+  };
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(bodyParser.urlencoded({extended:true,parameterLimit:1000000,limit:"500mb"}));
 app.use(bodyParser.json());
