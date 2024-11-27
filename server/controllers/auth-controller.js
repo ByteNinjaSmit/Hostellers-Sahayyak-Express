@@ -3,6 +3,7 @@ const User = require("../models/user-model");
 const Faculty = require("../models/high-authority-model");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const Developer = require("../models/developer-model");
 
 
 
@@ -200,7 +201,7 @@ const getCurrentUser = async (req, res, next) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
         const { userID, role } = decoded;
 
-        if (!role || (role !== "faculty" && role !== "student")) {
+        if (!role || (role !== "faculty" && role !== "student" && role!=="developer")) {
             return res.status(400).json({ message: "Invalid role specified" });
         }
 
@@ -211,6 +212,8 @@ const getCurrentUser = async (req, res, next) => {
             model = User; // Use User model for regular users
         } else if (role === "faculty") {
             model = Faculty; // Use Faculty model for admins or high-authority users
+        } else if (role === "developer") {
+            model = Developer; // Use Faculty model for admins or high-authority users
         } else {
             return res.status(401).json({ error: "Authentication token not found" });
         }

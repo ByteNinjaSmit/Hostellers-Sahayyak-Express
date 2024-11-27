@@ -22,6 +22,7 @@ export const AuthProvider = ({ children }) => {
     const [isAdmin, setIsAdmin] = useState(false);
     const [isRector, setIsRector] = useState(false);
     const [isHighAuth, setIsHighAuth] = useState(false);
+    const [isDeveloper, setIsDeveloper] = useState(false);
     const authorizationToken = `Bearer ${token}`;
     // const navigate = useNavigate();
 
@@ -43,6 +44,7 @@ export const AuthProvider = ({ children }) => {
         setToken(null);
         setUser(null);
         setIsAdmin(false);
+        setIsDeveloper(false);
         // Remove token from cookies
         document.cookie = "authToken=; path=/; max-age=0";
         toast.success(`Logout Successfully`);
@@ -93,14 +95,19 @@ export const AuthProvider = ({ children }) => {
         setIsAdmin(false);
         setIsRector(false);
         setIsHighAuth(false);
+        setIsDeveloper(false);
 
         // Check and set roles based on the user object
         if (user) {
-            const { isRector, isHighAuth } = user;
+            const { isRector, isHighAuth,isDeveloper } = user;
 
             setIsAdmin(isRector || isHighAuth ); // Admin if any of the roles is true
             setIsRector(isRector || false);
             setIsHighAuth(isHighAuth || false);
+            setIsDeveloper(isDeveloper || false);
+            if(isDeveloper){
+                console.log(`This is Developer`);
+            }
         }
     }, [user]);
 
@@ -117,6 +124,7 @@ export const AuthProvider = ({ children }) => {
                 isAdmin,
                 isRector,
                 isHighAuth,
+                isDeveloper,
                 API,
             }}
         >

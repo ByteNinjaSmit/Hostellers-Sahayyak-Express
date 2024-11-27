@@ -15,6 +15,10 @@ const developerSchema = new mongoose.Schema({
         type:String,
         required:true,
     },
+    isDeveloper:{
+        type:Boolean,
+        default:true,
+    },
     password: {
         type: String,
         required: true,
