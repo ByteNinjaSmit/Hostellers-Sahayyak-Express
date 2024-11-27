@@ -313,6 +313,7 @@ const UserManagement = () => {
                   <FaBuilding className="inline mr-2 text-purple-700" />
                   <strong>Hostel:</strong> {selectedUser?.hostelId}
                 </p>
+                {selectedUser?.face_image && (<img className="mt-2" src={selectedUser?.face_image} width={50} height={50} alt="" />)}
                 <button
                   className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
                   onClick={() => setIsViewing(false)}

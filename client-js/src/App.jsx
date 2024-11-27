@@ -28,6 +28,11 @@ import GrievanceViewAdmin from "./pages/admin/Single-Issue";
 import HeroSection from "./pages/Home";
 
 import Error from "./pages/Error";
+import FacialRecognition from "./pages/client/Face";
+import ImageUpload from "./pages/client/Img_Upload";
+import FaceRecognitionAttendance from "./pages/client/Submit-Attendance";
+import LocationTracker from "./pages/Location";
+import FaceRecognitionAttendanceAdmin from "./pages/admin/Submit-Single-Attend";
 
 const App = () => {
   return (
@@ -51,6 +56,7 @@ const App = () => {
             path="/rule-regulations"
             element={<RulesAndRegulations />}
           />
+          <Route exact path="/location" element={<LocationTracker />} />
 
           {/* User Routes */}
           <Route exact path="/client" element={<UserLayout />}>
@@ -70,6 +76,13 @@ const App = () => {
               exact
               path="singleissue/:id/:user"
               element={<GrievanceView />}
+            />
+            <Route exact path="face" element={<FacialRecognition />} />
+            <Route exact path="face-upload" element={<ImageUpload />} />
+            <Route
+              exact
+              path="take-attendance"
+              element={<FaceRecognitionAttendance />}
             />
           </Route>
           {/* Admin Routes */}
@@ -102,6 +115,11 @@ const App = () => {
               exact
               path="overview-attendance/take-attendance"
               element={<NewAttendance />}
+            />
+            <Route
+              exact
+              path="overview-attendance/take-attendance/:userId/:hostelId/:date"
+              element={<FaceRecognitionAttendanceAdmin />}
             />
             <Route
               exact

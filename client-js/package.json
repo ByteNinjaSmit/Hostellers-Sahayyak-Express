@@ -4,23 +4,28 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
     "@nextui-org/react": "^2.4.8",
+    "axios": "^1.7.8",
     "date-fns": "^4.1.0",
+    "face-api.js": "^0.22.2",
     "framer-motion": "^11.11.17",
     "lucide-react": "^0.460.0",
     "react": "^18.3.1",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.3.1",
+    "react-file-base64": "^1.0.3",
+    "react-geolocated": "^4.2.0",
     "react-icons": "^5.3.0",
     "react-image-file-resizer": "^0.4.8",
     "react-router-dom": "^7.0.1",
-    "react-toastify": "^10.0.6"
+    "react-toastify": "^10.0.6",
+    "react-webcam": "^7.2.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",

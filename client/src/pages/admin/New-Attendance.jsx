@@ -51,9 +51,7 @@ export default function NewAttendance() {
   const filteredStudents = mockStudents.filter((student) => {
     const isInSelectedRoom =
       selectedRoom === "All Rooms" || student?.room === selectedRoom;
-    const isStatusMatch = statusFilter
-      ? attendanceData[student?._id] === statusFilter
-      : true;
+    const isStatusMatch = statusFilter ? attendanceData[student?._id] === statusFilter : true;
     const isAttendanceMatch =
       attendanceFilter === "attended"
         ? attendanceData[student?._id]

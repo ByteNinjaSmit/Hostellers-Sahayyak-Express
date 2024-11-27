@@ -25,10 +25,16 @@ app.use(cookieParser());
 const PORT = process.env.PORT || 5000;
 
 const corsOptions = {
-    origin:process.env.CORS_SERVER,
+    origin: [
+        'http://localhost:5173',
+        'http://169.254.193.95:5173',
+        'http://169.254.204.232:5173',
+        'http://192.168.169.112:5173',
+        'https://152.56.4.81',
+      ],
     methods: "GET,POST,DELETE,PATCH,HEAD,PUT",
     credentials: true,
-  };
+};
 
 app.use(cors(corsOptions));
 app.use(express.json());
@@ -49,26 +55,26 @@ app.get('/', (req, res) => {
 });
 
 
-// connectToDatabase()
-//     .then(() => {
-//         console.log("Connected to MongoDB successfully");
-//         server.listen(PORT, () => {
-//             console.log(`Server running on port ${PORT}`);
-//         });
-//     })
-//     .catch((error) => {
-//         console.error("Error connecting to MongoDB:", error);
-//         process.exit(1);
-//     });
+connectToDatabase()
+    .then(() => {
+        console.log("Connected to MongoDB successfully");
+        server.listen(PORT, () => {
+            console.log(`Server running on port ${PORT}`);
+        });
+    })
+    .catch((error) => {
+        console.error("Error connecting to MongoDB:", error);
+        process.exit(1);
+    });
 
 // For Vercel
 // Connect to database
-connectToDatabase()
-  .then(() => {
-    console.log("Connected to MongoDB successfully");
-  })
-  .catch((error) => {
-    console.error("Error connecting to MongoDB:", error);
-  });
+// connectToDatabase()
+//   .then(() => {
+//     console.log("Connected to MongoDB successfully");
+//   })
+//   .catch((error) => {
+//     console.error("Error connecting to MongoDB:", error);
+//   });
 
-module.exports = app;
+// module.exports = app;

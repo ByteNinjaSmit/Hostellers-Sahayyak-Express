@@ -14,9 +14,9 @@ const getTokenFromCookies = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-    useEffect(() => {
-        console.log("AuthProvider is initialized");
-      }, []);
+    // useEffect(() => {
+    //     console.log("AuthProvider is initialized");
+    //   }, []);
     const [token, setToken] = useState(getTokenFromCookies());
     const [user, setUser] = useState("");
     const [isLoading, setIsLoading] = useState(true);
@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }) => {
 
     // Check if the user is logged in
     let isLoggedIn = !!token;
-    console.log("isLoggedIn", isLoggedIn);
+    // console.log("isLoggedIn", isLoggedIn);
 
     // Logout functionality
     const LogoutUser = () => {
@@ -129,9 +129,9 @@ export const AuthProvider = ({ children }) => {
 // Custom hook to use AuthContext
 export const useAuth = () => {
     const authContextValue = useContext(AuthContext);
-    console.log("authContextValue:", authContextValue);    
-    // if (!authContextValue) {
-    //     throw new Error("useAuth must be used within the AuthProvider");
-    // }
+    // console.log("authContextValue:", authContextValue);    
+    if (!authContextValue) {
+        throw new Error("useAuth must be used within the AuthProvider");
+    }
     return authContextValue;
 };

@@ -380,12 +380,12 @@ const changePasswordUser = async (req, res, next) => {
 const updateUser = async (req, res, next) => {
     try {
         const { userId } = req.params;
-        const { name, username, room, hostelId, password } = req.body;
+        const { name, username, room, hostelId, password,face_image } = req.body;
 
         if (!userId) {
             return res.status(400).json({ error: "User ID is required" })
         }
-        if (!name || !username || !room || !hostelId || !password) {
+        if (!name || !username || !room || !hostelId || !password ||!face_image) {
             return res.status(400).json({ error: "All fields are required" })
         }
         const updateData = {};
@@ -395,6 +395,7 @@ const updateUser = async (req, res, next) => {
         if (username) updateData.username = username;
         if (room) updateData.room = room;
         if (hostelId) updateData.hostelId = hostelId;
+        if (face_image) updateData.face_image = face_image;
 
         // If the password is provided, hash it before updating
         if (password) {
@@ -402,7 +403,7 @@ const updateUser = async (req, res, next) => {
             const hash_password = await bcrypt.hash(password, saltRound);
             updateData.password = hash_password;
         }
-        const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true }).exec();
+        const updatedUser = await User.findByIdAndUpdate({_id:userId}, updateData, { new: true }).exec();
         if (!updatedUser) {
             return res.status(404).json({ error: "User not found" })
         }
@@ -423,7 +424,7 @@ const getHostelUsers = async (req, res, next) => {
             return res.status(400).json({ error: "Hostel ID is required" })
         }
         // Query the database for users with the specified hostelId
-        const users = await User.find({ hostelId: hostelId }).select('-password'); // Exclude password from results
+        const users = await User.find({ hostelId: hostelId }).select('-password -face_image'); // Exclude password from results
 
         if (!users) {
             return res.status(404).json({ error: "No users found in this hostel" })
@@ -545,4 +546,105 @@ const updateAttendance = async (req, res, next) => {
     }
 }
 
-module.exports = { updateIssueStatus, getIssue, updateIssue,getAllIssues, getUsers, getUser, deleteUser, updateUser, changePasswordUser, getHostelUsers, newAttendance, getAllAttendance, getAttendanceById, updateAttendance };
+
+// --------------
+// PUT Attendance One By One User Data
+// --------------
+const putAttendanceOneByOneUserData = async (req, res, next) => {
+    try {
+        const { userId, date, hostelId, status } = req.body;
+
+        // Validate the request data
+        if (!userId || !date || !hostelId || !status) {
+            return res.status(400).json({ message: "Invalid data" });
+        }
+
+        // Parse the date for consistent querying
+        const attendanceDate = new Date(date);
+
+        // Find the attendance document for the given date and hostel
+        let attendance = await Attendance.findOne({ date: attendanceDate, hostel: hostelId });
+
+        if (!attendance) {
+            // If attendance doesn't exist, create a new document
+            attendance = new Attendance({
+                date: attendanceDate,
+                hostel: hostelId,
+                students: []
+            });
+        }
+
+        // Check if the student already exists in the students array
+        const studentIndex = attendance.students.findIndex(s => s.student.toString() === userId);
+
+        if (studentIndex > -1) {
+            // If the student exists, update their status
+            attendance.students[studentIndex].status = status;
+        } else {
+            // If the student doesn't exist, add them to the students array
+            attendance.students.push({
+                student:userId,
+                status,
+                remarks: "", // Default remarks
+            });
+        }
+
+        // Save the updated attendance document
+        await attendance.save();
+
+        // Respond to the client
+        return res.status(200).json({message: "Attendance Marked successfully",});
+    } catch (error) {
+        // Handle errors and pass them to the error-handling middleware
+        next(error);
+    }
+};
+
+// --------------------
+// GET Attendance Signle Hostel Of Particular Date
+// -------------------
+const getSingleHostelDateWise = async (req, res, next) => {
+    try {
+        const { hostelId, date } = req.params;
+
+        // Validate the parameters
+        if (!hostelId || !date) {
+            return res.status(400).json({ message: "Hostel and Date are required." });
+        }
+
+        // Parse the date to match the stored format
+        const attendanceDate = new Date(date);
+
+        // Find the attendance document for the given hostel and date
+        const attendance = await Attendance.findOne({ date: attendanceDate, hostel: hostelId });
+
+        if (!attendance) {
+            return res.status(404).json({ message: "Attendance not found for this hostel and date." });
+        }
+
+        // Respond with the attendance document
+        return res.status(200).json(attendance);
+    } catch (error) {
+        // Pass any errors to the error-handling middleware
+        next(error);
+    }
+};
+
+module.exports = { 
+    updateIssueStatus, 
+    getIssue, 
+    updateIssue,
+    getAllIssues, 
+    getUsers, 
+    getUser, 
+    deleteUser, 
+    updateUser, 
+    changePasswordUser, 
+    getHostelUsers, 
+    newAttendance, 
+    getAllAttendance, 
+    getAttendanceById, 
+    updateAttendance,
+    putAttendanceOneByOneUserData,
+    getSingleHostelDateWise,
+};

@@ -29,6 +29,8 @@ import GrievanceViewAdmin from "./pages/admin/Single-Issue";
 import HeroSection from "./pages/Home";
 
 import Error from "./pages/Error";
+import FaceRecognitionAttendance from "./pages/client/Submit-Attendance";
+import FacialRecognition from "./pages/client/Face-Recognation";
 
 const App = () => {
   return (
@@ -71,6 +73,16 @@ const App = () => {
               exact
               path="singleissue/:id/:user"
               element={<GrievanceView />}
+            />
+            {/* <Route
+              exact
+              path="take-attend"
+              element={<FaceRecognitionAttendance />}
+            /> */}
+            <Route
+              exact
+              path="face"
+              element={<FacialRecognition />}
             />
           </Route>
           {/* Admin Routes */}

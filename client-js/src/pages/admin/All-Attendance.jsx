@@ -97,17 +97,32 @@ export default function HostelAttendanceOverview() {
   useEffect(() => {
     const checkAttendanceForToday = () => {
       if (!attendanceData || !user?.hostelId) return;
-
+    
       const today = new Date().toISOString().split("T")[0]; // Get current date in YYYY-MM-DD format
-
-      // Check if there's an attendance record for today and user's hostel
-      const hasTodayAttendance = attendanceData?.some(
+    
+      // Find the record of attendance for today and the user's hostel
+      const todayAttendance = attendanceData?.find(
         (record) =>
           record?.hostel === user?.hostelId && record.date.startsWith(today)
       );
-
-      setIsAttendanceTakenToday(hasTodayAttendance);
+    
+      if (todayAttendance) {
+        // Parse the attendance timestamp
+        const attendanceTime = new Date(todayAttendance?.createdAt); // Means From createdAt
+        const currentTime = new Date();
+    
+        // Check if the attendance was taken within the last 2 hours
+        const timeDiffInHours = (currentTime - attendanceTime) / (1000 * 60 * 60); // Time difference in hours
+        if (timeDiffInHours <= 2) {
+          setIsAttendanceTakenToday(false);
+        } else {
+          setIsAttendanceTakenToday(true); // Block attendance again if more than 2 hours have passed
+        }
+      } else {
+        setIsAttendanceTakenToday(false); // No attendance taken today
+      }
     };
+    
 
     checkAttendanceForToday();
   }, [attendanceData, user?.hostelId]);

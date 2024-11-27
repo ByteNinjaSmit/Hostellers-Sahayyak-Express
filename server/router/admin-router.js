@@ -45,7 +45,10 @@ router.route("/get-attendance/:id").get(adminControllers.getAttendanceById);
 router.route("/save-attendance-all").post(adminControllers.newAttendance);
 // Update Attendance
 router.route("/update-attendance/:id").patch(adminControllers.updateAttendance);
-
+// GET Attendance Signle Hostel Of Particular Date
+router.route("/get-attendance-by-hostel-and-date/:hostelId/:date").get(adminControllers.getSingleHostelDateWise);
+// PUT Attendance One By One User Data
+router.route("/save-attendance-one-by-one").post(adminControllers.putAttendanceOneByOneUserData);
 
 
 module.exports = router;

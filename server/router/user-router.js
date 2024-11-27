@@ -19,6 +19,12 @@ router.route("/delete-issue/:issueid").delete(userControllers.deleteIssue);
 // Update Issue
 router.route("/update-issue/:issueid").patch(userControllers.updateIssueStatus);
 
+// Store User Image
+router.route("/store-image").post(userControllers.storeUserImage);
+// GET User Image
+router.route("/get-image/:userId").get(userControllers.getUserImage)
+
+
 
 
 

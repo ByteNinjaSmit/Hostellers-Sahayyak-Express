@@ -7,7 +7,7 @@ const FoodQuality = require("../models/food-quality-model");
 const FoodOwner = require("../models/food-owner-model");
 const NetworkConn = require("../models/network-model");
 const Safety = require("../models/safety-model");
-
+const User = require("../models/user-model");
 // Set up storage engine (default to memory storage)
 
 
@@ -305,5 +305,46 @@ const getUser = async (req, res, next) => {
     }
 }
 
+// ---------------------
+// GET User Image
+// --------------------
 
-module.exports = { newIssue, getIssuesAllUser, getIssue, deleteIssue, updateIssueStatus,getUser };
+const getUserImage = async (req,res,next)=>{
+    try {
+        const {userId} = req.params;
+        if(!userId){
+            return res.status(400).json({error: "User ID is required"})
+        }
+        const user = await User.find({_id:userId}).select('face_image').exec();
+        if(!user){
+            return res.status(404).json({error:"User not found"})
+        }
+        res.status(200).json(user);
+    } catch (error) {
+        next(error)
+    }
+}
+
+// ----------------------
+// Store User Image PATCH
+// -----------------------
+
+const storeUserImage = async (req, res, next) => {
+    try {
+        const {userId,image} = req.body;
+        if (!userId || !image) {
+            return res.status(400).json({ error: "User ID and Image are required" })
+        }
+        
+        const user = await User.findByIdAndUpdate({_id:userId}, { $set: { face_image: image } },{ new: true }).exec();
+        if (!user) {
+            return res.status(404).json({ error: "User not found" })
+        }
+        return res.status(200).json({message:"Image Successfully Stored"});
+    } catch (error) {
+        next(error);
+    }
+}
+
+
+module.exports = { newIssue, getIssuesAllUser, getIssue, deleteIssue, updateIssueStatus,getUser,getUserImage,storeUserImage };

@@ -11,6 +11,8 @@ import {
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAuth } from "../../store/auth";
+import FileBase64 from "react-file-base64";
+import Resizer from "react-image-file-resizer";
 
 const EditUserFromAdmin = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -25,6 +27,25 @@ const EditUserFromAdmin = () => {
   const { id } = useParams();
   const [userData, setUserData] = useState(null);
   const { API } = useAuth();
+  const [imageBase64, setImageBase64] = useState(null);
+
+  // Resize the image and convert it to Base64 format
+  const handleFileChange = (file) => {
+    // Resize the image using react-image-file-resizer
+    Resizer.imageFileResizer(
+      file,
+      200, // width
+      200, // height
+      "JPEG", // output type (e.g., 'JPEG', 'PNG', 'WEBP')
+      80, // quality (from 0 to 100)
+      0, // rotation (0 is no rotation)
+      (resizedBase64) => {
+        // The resizedBase64 is directly the Base64 string, no need for FileReader
+        setImageBase64(resizedBase64);
+      },
+      "base64" // output format (base64 string)
+    );
+  };
 
   // Toggle password visibility
   const togglePasswordVisibility = (field) => {
@@ -45,7 +66,6 @@ const EditUserFromAdmin = () => {
 
         const data = await response.json();
 
-
         // Assuming data is an object with user details
         setUserData(data);
 
@@ -55,6 +75,7 @@ const EditUserFromAdmin = () => {
         setUsername(user?.username || "");
         setRoomNumber(user?.room || "");
         setHostel(user?.hostelId || "");
+        setImageBase64(user?.face_image || "");
       } catch (error) {
         console.error("Error:", error); // Log the error for debugging
         toast.error("An error occurred while fetching user data.");
@@ -72,7 +93,7 @@ const EditUserFromAdmin = () => {
       toast.error("Password and confirm password do not match.");
       return;
     }
-
+    
     try {
       const response = await fetch(`${API}/api/admin/update-user/${id}`, {
         method: "PATCH",
@@ -85,6 +106,7 @@ const EditUserFromAdmin = () => {
           password,
           room: roomNumber,
           hostelId: hostel,
+          face_image: imageBase64,
         }),
       });
 
@@ -182,6 +204,28 @@ const EditUserFromAdmin = () => {
                 onChange={(e) => setHostel(e.target.value)}
                 placeholder="Enter the hostel"
               />
+            </div>
+            <div className="bg-purple-100 p-4 rounded-lg">
+              <label
+                htmlFor="image"
+                className="block text-sm font-medium text-purple-700 mb-1"
+              >
+                <FaBuilding className="inline mr-2" /> User Image
+              </label>
+              <FileBase64
+                multiple={false}
+                onDone={({ base64, file }) => handleFileChange(file)} // Passing file instead of base64 directly
+                className="border-2 border-gray-300 p-2"
+              />
+              {imageBase64 && (
+                <div>
+                  <img
+                    src={imageBase64}
+                    alt="Uploaded preview"
+                    className="w-32 h-32 object-cover mt-2"
+                  />
+                </div>
+              )}
             </div>
 
             <div className="pt-6">
