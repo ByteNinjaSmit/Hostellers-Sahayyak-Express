@@ -28,7 +28,7 @@
 ### 4️⃣ **Admin Dashboard**
 - Comprehensive dashboard for rectors and higher authorities with data visualizations and reports.
 
-###  5 **Developer Dashboard**
+### 5️⃣ **Developer Dashboard**
 - Comprehensive dashboard for rectors and higher authorities with data visualizations and reports.
 ---
 
