@@ -1,7 +1,7 @@
 
 # Hostellers Sahayyak
 
-![Hostellers Sahayyak Logo](https://via.placeholder.com/150)
+![Hostellers Sahayyak Home](./client-js/public/screenshot/Homepage.png)
 
 **Hostellers Sahayyak** is an innovative project designed to improve the hostel experience for students by addressing two key challenges: efficient grievance resolution and seamless attendance management. With advanced features like biometric attendance and a robust grievance system, this platform bridges the gap between students and hostel management, ensuring a better living environment for hostellers.
 
@@ -57,11 +57,11 @@
 ```
 ├── client
     ├── components
-	|	 ├──layout
+    |    ├──layout
     ├── pages
-	|    ├── client
-	|    ├── admin
-	|    ├── dev
+	 |    ├── client
+	 |    ├── admin
+	 |    ├── dev
     ├── styles
     
 ├── server
@@ -86,7 +86,7 @@
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/hostellers-sahayyak.git
+   git clone https://github.com/ByteNinjaSmit/Hostellers-Sahayyak-Express.git
    ```
 
 2. Navigate to the project directory:
@@ -157,11 +157,35 @@
 
 ## 📊 Screenshots
 
+### Login 
+![Login Page](/client-js/public/screenshot/Login.png)
+
+### User Dashboard
+![User Dashboard](/client-js/public/screenshot/User%20Dashboard.png)
+
+### Grivience Form 
+![Grivience Form ](/client-js/public/screenshot/Grivience%20Form.png)
+
+### Admin Dashboard
+![Admin Dashboard](/client-js/public/screenshot/Admin%20Dashboard.png)
+
 ### Grievance Dashboard
-![Grievance Dashboard](https://via.placeholder.com/800x400)
+![Grievance Dashboard](/client-js/public/screenshot/Grivience%20Management.png)
+
+### Grievance Action
+![Grievance Action](/client-js/public/screenshot/Grivince%20Action.png)
+
+### User Management Dashboard 
+![User Management Dashboard ](/client-js/public/screenshot/User%20Management.png)
+
+### Attendance Dashboard 
+![Attendance Dashboard ](/client-js/public/screenshot/Attendance%20Dashboard.png)
+
+### Attendance List 
+![Attendance List ](/client-js/public/screenshot/Attendance.png)
 
 ### Biometric Attendance
-![Biometric Attendance](https://via.placeholder.com/800x400)
+![Biometric Attendance](/client-js/public/screenshot/Biometric.png)
 
 ---
 
@@ -194,7 +218,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 ## 🙌 Acknowledgments
 
 - Special thanks to our mentors and peers for their guidance.
-- Tools and frameworks that made this project possible: [Next.js](https://nextjs.org/), [MongoDB](https://www.mongodb.com/), [TailwindCSS](https://tailwindcss.com/).
+- Tools and frameworks that made this project possible: [Next.js](https://nextjs.org/), [React.js](https://react.dev/),[React + Vite](https://vitejs.dev/), [Express.js](https://expressjs.com/), [MongoDB](https://www.mongodb.com/), [TailwindCSS](https://tailwindcss.com/).
 
 ---
 
@@ -202,8 +226,8 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 For any queries, feel free to contact:
 - **Smitraj Bankar**
-- Email: [smitrajbankar11@gmail.com](mailto:your-email@example.com)
-- GitHub: [@ByteNinjaSmit](https://github.com/your-username)
+- Email: [smitrajbankar11@gmail.com](mailto:smitrajbankar11@gmail.com)
+- GitHub: [@ByteNinjaSmit](https://github.com/ByteNinjaSmit)
 
 ---
 
