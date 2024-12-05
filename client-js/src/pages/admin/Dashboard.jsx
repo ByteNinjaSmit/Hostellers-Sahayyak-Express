@@ -410,6 +410,18 @@ const AdminDashboard = () => {
     { id: 3, message: "Complaint GR002 has been resolved" },
   ];
 
+    // Formatting function for dates
+    const formatDate = (dateString) => {
+      const options = {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      };
+      return new Date(dateString).toLocaleDateString(undefined, options);
+    };
+
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
@@ -644,16 +656,29 @@ const AdminDashboard = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {actionLog.map((log, index) => (
-                      <tr
+                    {
+                      complaintData?.length>0 ? (
+                        complaintData?.slice(0,5).map((grievance,index)=>(
+                          <tr
                         key={index}
                         className="border-b hover:bg-gray-50 bg-white"
                       >
-                        <td className="p-3">{log.action}</td>
-                        <td className="p-3">{log.admin}</td>
-                        <td className="p-3">{log.timestamp}</td>
+                        <td className="p-3">{grievance?.actionLog[0]?.action}</td>
+                        <td className="p-3">{grievance?.actionLog[0]?.actionTakenBy}</td>
+                        <td className="p-3">{formatDate(grievance?.updatedAt)}</td>
                       </tr>
-                    ))}
+                        ))
+                      ) :(
+                        <tr className="border-b hover:bg-gray-50 bg-white">
+                        <td
+                          className="px-6 py-4 text-center text-gray-500"
+                          colSpan={5}
+                        >
+                          No recent grievances found.
+                        </td>
+                      </tr>
+                      )
+                    }
                   </tbody>
                 </table>
               </div>

@@ -6,26 +6,23 @@ import {
   FaTrash,
 } from "react-icons/fa";
 import { IoMdArrowRoundBack } from "react-icons/io";
-import { Link,useParams,useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAuth } from "../../store/auth";
 
-
 const GrievanceView = () => {
-  const { id,user } = useParams(); // Get the single issue ID from the URL params
+  const { id, user } = useParams(); // Get the single issue ID from the URL params
   const navigate = useNavigate(); // Initialize router for navigation
   const [grievance, setGrievance] = useState(null); // Initialize state to hold grievance data
   const [loading, setLoading] = useState(true); // State for loading status
   const [error, setError] = useState(null); // State for error handling
   const [category, setCategory] = useState(null);
-  const {API} = useAuth();
+  const { API } = useAuth();
 
   useEffect(() => {
     const fetchGrievance = async () => {
       try {
-        const response = await fetch(
-          `${API}/api/user/get-issue/${id}`
-        );
+        const response = await fetch(`${API}/api/user/get-issue/${id}`);
         if (!response.ok) {
           throw new Error("Failed to fetch grievance data");
         }
@@ -64,34 +61,33 @@ const GrievanceView = () => {
   };
 
   const handleResolve = async () => {
-
     const confirmed = window.confirm(
       "Are you sure you want to Resolved this grievance?"
     );
 
     if (confirmed) {
       try {
-        const response = await fetch(
-          `${API}/api/user/update-issue/${id}`,
-          {
-            method: "PATCH",
-            body: JSON.stringify({ status: "Resolved" })
-          }
-        );
+        const response = await fetch(`${API}/api/user/update-issue/${id}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json", // Ensure the content type is JSON
+          },
+          body: JSON.stringify({ status: "Resolved" }), // Stringify the body
+        });
 
         if (!response.ok) {
           toast.error("Failed to Resolved grievance");
         }
-
-        // Optionally, redirect or update state after deletion
-        setGrievance({ ...grievance, status: "Resolved" });
-        toast.success("Grievance Resolved successfully!");
-        navigate(`/client/dashboard`); // Redirect to grievances list or home page
+        if (response.ok) {
+          // Optionally, redirect or update state after deletion
+          setGrievance({ ...grievance, status: "Resolved" });
+          toast.success("Grievance Resolved successfully!");
+          navigate(`/client/dashboard`); // Redirect to grievances list or home page
+        }
       } catch (error) {
         toast.error(`Error: ${error.message}`);
       }
     }
-
   };
 
   const handleEscalate = async () => {
@@ -101,13 +97,13 @@ const GrievanceView = () => {
 
     if (confirmed) {
       try {
-        const response = await fetch(
-          `${API}/api/user/update-issue/${id}`,
-          {
-            method: "PATCH",
-            body: JSON.stringify({ status: "Urgent" })
-          }
-        );
+        const response = await fetch(`${API}/api/user/update-issue/${id}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json", // Ensure the content type is JSON
+          },
+          body: JSON.stringify({ status: "Urgent" }),
+        });
 
         if (!response.ok) {
           toast.error("Failed to Escalate grievance");
@@ -133,12 +129,9 @@ const GrievanceView = () => {
 
     if (confirmed) {
       try {
-        const response = await fetch(
-          `${API}/api/user/delete-issue/${id}`,
-          {
-            method: "DELETE",
-          }
-        );
+        const response = await fetch(`${API}/api/user/delete-issue/${id}`, {
+          method: "DELETE",
+        });
 
         if (!response.ok) {
           toast.error("Failed to delete grievance");
@@ -211,26 +204,25 @@ const GrievanceView = () => {
               </p>
             </div>
           </div>
-          {
-            grievance?.image &&(
-              <div className="mb-4">
-                        <h2 className="text-lg font-semibold mb-2">Complaint Image:</h2>
-                        <img
-                          src={grievance?.image}
-                          alt="Image Preview"
-                          className="w-full h-auto rounded-lg border border-gray-300"
-                        />
-                      </div>
-            )
-          }
+          {grievance?.image && (
+            <div className="mb-4">
+              <h2 className="text-lg font-semibold mb-2">Complaint Image:</h2>
+              <img
+                src={grievance?.image}
+                alt="Image Preview"
+                className="w-full h-auto rounded-lg border border-gray-300"
+              />
+            </div>
+          )}
           <div className="mb-6">
             <span
-              className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${grievance.status === "Resolved"
-                ? "bg-green-200 text-green-800"
-                : grievance.status === "Not Processed"
+              className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
+                grievance.status === "Resolved"
+                  ? "bg-green-200 text-green-800"
+                  : grievance.status === "Not Processed"
                   ? "bg-yellow-200 text-yellow-800"
                   : "bg-blue-200 text-blue-800"
-                }`}
+              }`}
             >
               {grievance.status}
             </span>
@@ -239,7 +231,11 @@ const GrievanceView = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <button
               onClick={handleResolve}
-              className={`flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white ${grievance.status !== "Procced" ? "bg-gray-400 cursor-not-allowed" : "bg-green-600 hover:bg-green-700"} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out`}
+              className={`flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white ${
+                grievance.status !== "Procced"
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-green-600 hover:bg-green-700"
+              } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out`}
               aria-label="Resolve Grievance"
               disabled={grievance.status !== "Procced"}
             >
@@ -247,9 +243,15 @@ const GrievanceView = () => {
             </button>
             <button
               onClick={handleEscalate}
-              className={`flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white ${isOlderThanTwoDays() && grievance?.status === "Not Processed" ? "bg-yellow-600 hover:bg-yellow-700" : "bg-gray-400 cursor-not-allowed"} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition duration-150 ease-in-out`}
+              className={`flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white ${
+                isOlderThanTwoDays() && grievance?.status === "Not Processed"
+                  ? "bg-yellow-600 hover:bg-yellow-700"
+                  : "bg-gray-400 cursor-not-allowed"
+              } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition duration-150 ease-in-out`}
               aria-label="Escalate Grievance"
-              disabled={!(isOlderThanTwoDays() && grievance?.status === "Not Processed")}
+              disabled={
+                !(isOlderThanTwoDays() && grievance?.status === "Not Processed")
+              }
             >
               <FaExclamationTriangle className="mr-2" /> Escalate Grievance
             </button>
@@ -263,7 +265,11 @@ const GrievanceView = () => {
             </button>
             <button
               onClick={handleDelete}
-              className={`flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white ${grievance.status !== "Not Processed" ? "bg-gray-400 cursor-not-allowed" : "bg-red-600 hover:bg-red-700"} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition duration-150 ease-in-out`}
+              className={`flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white ${
+                grievance.status !== "Not Processed"
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-red-600 hover:bg-red-700"
+              } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition duration-150 ease-in-out`}
               aria-label="Delete Grievance"
               disabled={grievance.status !== "Not Processed"}
             >

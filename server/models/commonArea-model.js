@@ -15,25 +15,38 @@ const commonareaSchema = new mongoose.Schema(
       type: mongoose.Types.ObjectId,
       ref: "User", // Reference to the user who submitted the complaint
     },
-    actionLog: [
-      {
-        action: {
-          type: String,
-          required: true, // Example: "Processed", "Resolved", "In Progress"
+    actionLog: {
+      type: [
+        {
+          action: {
+            type: String,
+            default: "Not Processed",
+            required: true, // Example: "Processed", "Resolved", "In Progress"
+          },
+          actionTakenBy: {
+            type: String,
+            default: "User",
+            required: true,
+          },
+          actionDate: {
+            type: Date,
+            default: Date.now, // Timestamp when the action was taken
+          },
+          remarks: {
+            type: String, // Optional field for additional information about the action
+            default: "No remarks provided", // Default value for remarks
+          },
         },
-        actionTakenBy: {
-          type: String,
-          required: true,
+      ],
+      default: [
+        {
+          action: "Not Processed",
+          actionTakenBy: "User",
+          actionDate: Date.now(),
+          remarks: "No remarks provided",
         },
-        actionDate: {
-          type: Date,
-          default: Date.now, // Timestamp when the action was taken
-        },
-        remarks: {
-          type: String, // Optional field for additional information about the action
-        },
-      },
-    ],
+      ],
+    },
   },
   { timestamps: true } // Automatically add createdAt and updatedAt fields
 );

@@ -385,7 +385,7 @@ const updateUser = async (req, res, next) => {
         if (!userId) {
             return res.status(400).json({ error: "User ID is required" })
         }
-        if (!name || !username || !room || !hostelId || !password ||!face_image) {
+        if (!name || !username || !room || !hostelId  ||!face_image) {
             return res.status(400).json({ error: "All fields are required" })
         }
         const updateData = {};

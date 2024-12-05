@@ -25,7 +25,7 @@ const AdminSidebar = ({ sidebarOpen, toggleSidebar }) => {
     { icon: <FaHome />, text: "Home", href: `/admin/dashboard` },
     { icon: <FaChartBar />, text: "Overview", href: `/admin/overview` },
     { icon: <FaUser />, text: "Profile", href: `/admin/edit-profile` },
-    { icon: <FaUsers />, text: "Students", href: `/admin/hostellers` },
+    { icon: <FaUsers />, text: "Hosteller's", href: `/admin/hostellers` },
     { icon: <FaCalendarAlt />, text: "Attendance", href: `/admin/overview-attendance` },
     // { icon: <FaBed />, text: "Hostel Issues", href: "/admin/hostel-issues" },
     // { icon: <FaUtensils />, text: "Mess/Tiffin Issues", href: "/admin/mess-issues" },

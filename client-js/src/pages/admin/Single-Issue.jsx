@@ -26,7 +26,7 @@ const GrievanceViewAdmin = () => {
   const [actionLog, setActionLog] = useState([]);
   const [complaintData, setComplaintData] = useState(null);
   const [category, setCategory] = useState(null);
-  const { API, isHighAuth, isRector } = useAuth();
+  const { API, isHighAuth, isRector,user } = useAuth();
   const navigate = useNavigate();
   useEffect(() => {
     const fetchGrievance = async () => {
@@ -65,7 +65,7 @@ const GrievanceViewAdmin = () => {
       return;
     }
 
-    const actionTakenBy = isHighAuth ? "Higher Authority" : "Rector";
+    const actionTakenBy = user?.username;
 
     const newAction = {
       action: `Status updated to ${status}`,
@@ -136,7 +136,6 @@ const GrievanceViewAdmin = () => {
       "Pending",
       "In Progress",
       "Procced",
-      "Not Resolved",
       "Resolved",
     ];
     const currentIndex = statusHierarchy.indexOf(currentStatus);
@@ -146,18 +145,16 @@ const GrievanceViewAdmin = () => {
       if (currentStatus === "Cancelled" || currentStatus === "Not Resolved") {
         return true; // Block any status selection
       }
-      if (option === "Resolved" && currentStatus !== "Resolved") {
-        return true; // Show in dropdown but not selectable
-      }
-      return option !== "Resolved"; // Exclude Resolved from dropdown if it is selected
+      //if (option === "Resolved" && currentStatus !== "Resolved") {
+       // return true; // Show in dropdown but not selectable
+      //}
+      return option !== " "; // Exclude Resolved from dropdown if it is selected
     });
   };
   const getStatusStyles = (option) => {
     switch (option) {
       case "Cancelled":
         return "bg-red-200 text-red-900";
-      case "Not Resolved":
-        return "bg-yellow-200 text-yellow-600";
       case "Pending":
         return "bg-orange-200 text-orange-600";
       case "In Progress":
@@ -233,8 +230,6 @@ const GrievanceViewAdmin = () => {
                       ? "text-blue-500"
                       : complaintData.status === "Pending"
                       ? "text-orange-600"
-                      : complaintData.status === "Not Resolved"
-                      ? "text-red-500"
                       : complaintData.status === "Resolved"
                       ? "text-green-600"
                       : complaintData.status === "Proceeded"
@@ -354,7 +349,7 @@ const GrievanceViewAdmin = () => {
                     value={status}
                     onChange={handleStatusChange}
                     disabled={
-                      status === "Cancelled" || status === "Not Resolved"
+                      status === "Cancelled" || status === "Not Resolved"|| status === "Resolved"
                     }
                   >
                     {getStatusOptions(status)?.map((option, index) => (
@@ -362,9 +357,9 @@ const GrievanceViewAdmin = () => {
                         key={index}
                         value={option}
                         disabled={
-                          (option === "Resolved" && status !== "Resolved") ||
+                          (option === "Resolved" ) ||
                           option === "Not Processed" ||
-                          option === "Urgent"
+                          option === "Urgent" || option === "Not Resolved"
                         }
                         className={`${getStatusStyles(option)}`} // Apply styles dynamically based on option
                       >

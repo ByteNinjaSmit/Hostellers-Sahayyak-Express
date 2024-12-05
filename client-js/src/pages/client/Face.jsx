@@ -19,7 +19,7 @@ const FacialRecognition = () => {
     const getUserImage = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`${API}/api/user/get-image/${user._id}`);
+        const response = await fetch(`${API}/api/user/get-image/${user?._id}`);
         if (!response.ok) {
           throw new Error(response.statusText);
         }
@@ -58,7 +58,9 @@ const FacialRecognition = () => {
           .detectAllFaces(refFace)
           .withFaceLandmarks()
           .withFaceDescriptors();
-        const faceMatcher = new faceapi.FaceMatcher(refFaceAiData);
+        const faceMatcher = new faceapi.FaceMatcher(refFaceAiData,0.5);
+        console.log(`Ref Image Data: ${refFaceAiData}`);  // Showing [object object]
+        
 
         // Capture and compare frames continuously
         const intervalId = setInterval(async () => {
@@ -89,7 +91,7 @@ const FacialRecognition = () => {
             resizedFacesToCheckAiData.forEach((face) => {
               const { detection, descriptor } = face;
               const label = faceMatcher.findBestMatch(descriptor).toString();
-
+              
               if (label.includes("unknown")) {
                 setIsFaceMatched(false);
                 return;

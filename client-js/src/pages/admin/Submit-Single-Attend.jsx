@@ -154,7 +154,7 @@ const FaceRecognitionAttendanceAdmin = () => {
         .detectAllFaces(refFace)
         .withFaceLandmarks()
         .withFaceDescriptors();
-      const faceMatcher = new faceapi.FaceMatcher(refFaceAiData);
+      const faceMatcher = new faceapi.FaceMatcher(refFaceAiData,0.5);
 
       // Capture and compare frames continuously
       const intervalId = setInterval(async () => {
@@ -250,12 +250,6 @@ const FaceRecognitionAttendanceAdmin = () => {
   // ------------------------
   const handleAttendanceSubmit = async (e, newStatus) => {
     e.preventDefault();
-
-    // Data to send in the request body
-    console.log(`status: ${newStatus}`);
-    console.log(`userId: ${userId}`);
-    console.log(`date: ${date}`);
-    console.log(`hostelId: ${hostelId}`);
 
     try {
       // Send the POST request with the data
@@ -392,10 +386,10 @@ const FaceRecognitionAttendanceAdmin = () => {
                 recognitionStatus !== "recognized" 
                 // locationStatus !== "verified"
               }
-              className={`w-full md:w-auto px-8 py-4 rounded-lg font-semibold text-white transition-all duration-200 ${
+              className={`w-full md:w-auto px-8 py-4 rounded-lg font-semibold text-white transition-all duration-200 transform hover:scale-105 ${
                 recognitionStatus === "recognized"
                 // locationStatus === "verified"
-                  ? "bg-green-500 hover:bg-green-600"
+                  ? "bg-green-600 hover:bg-green-800"
                   : "bg-gray-400 cursor-not-allowed"
               }`}
               aria-label="Mark attendance"
@@ -405,8 +399,9 @@ const FaceRecognitionAttendanceAdmin = () => {
             <button
               onClick={(e) => handleAttendanceSubmit(e, "Leave")}
               disabled={
-                recognitionStatus === "recognized" &&
-                locationStatus === "verified"
+                recognitionStatus === "recognized" 
+                //&&
+                //locationStatus === "verified"
               }
               className="bg-red-600 hover:bg-red-700 text-white py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 disabled:opacity-50"
               aria-label="Clock Out"
@@ -416,8 +411,9 @@ const FaceRecognitionAttendanceAdmin = () => {
             <button
              onClick={(e) => handleAttendanceSubmit(e, "Absent")}
               disabled={
-                recognitionStatus === "recognized" &&
-                locationStatus === "verified"
+                recognitionStatus === "recognized" 
+                //&&
+                //locationStatus === "verified"
               }
               className="bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:opacity-50"
               aria-label="Clock Out"
@@ -427,8 +423,9 @@ const FaceRecognitionAttendanceAdmin = () => {
             <button
               onClick={(e) => handleAttendanceSubmit(e, "Late")}
               disabled={
-                recognitionStatus === "recognized" &&
-                locationStatus === "verified"
+                recognitionStatus === "recognized" 
+                //&&
+                //locationStatus === "verified"
               }
               className="bg-yellow-600 hover:bg-yellow-700 text-white py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50 disabled:opacity-50"
               aria-label="Clock Out"
