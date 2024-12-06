@@ -6,6 +6,7 @@ import {
   FaUser,
   FaIdCardAlt,
   FaHome,
+  FaRegUserCircle ,
   FaBuilding,
 } from "react-icons/fa";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -208,9 +209,9 @@ const EditUserFromAdmin = () => {
             <div className="bg-purple-100 p-4 rounded-lg">
               <label
                 htmlFor="image"
-                className="block text-sm font-medium text-purple-700 mb-1"
+                className="block text-sm font-medium text-blue-700 mb-1"
               >
-                <FaBuilding className="inline mr-2" /> User Image
+                <FaRegUserCircle  className="inline mr-2" /> User Image
               </label>
               <FileBase64
                 multiple={false}

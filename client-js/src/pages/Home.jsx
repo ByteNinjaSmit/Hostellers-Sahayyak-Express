@@ -3,9 +3,9 @@ import { FaQuestionCircle, FaInfoCircle, FaEnvelope } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { useAuth } from "../store/auth";
 
-import { Navigate,useLocation } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 const HeroSection = () => {
-  const { isLoggedIn ,isLoading,isDeveloper} = useAuth();
+  const { isLoggedIn, isLoading, isDeveloper, isAdmin } = useAuth();
 
   const location = useLocation();
 
@@ -16,8 +16,8 @@ const HeroSection = () => {
       </div>
     );
   }
-  if (isDeveloper && location.pathname === '/') {
-    return <Navigate to="/developer/dashboard" />;
+  if (isDeveloper && location.pathname === "/") {
+    return <Navigate to="/developer/dev/dashboard" />;
   }
   return (
     <div className="relative bg-gradient-to-r from-blue-500 to-green-400 min-h-screen flex items-center justify-center overflow-hidden">
@@ -39,19 +39,21 @@ const HeroSection = () => {
               An easy and secure way to submit, track, and resolve all your
               hostel-related issues.
             </p>
-            {isLoggedIn ? (
-              <Link to={`/client/dashboard`}>
-                <button className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-8 rounded-full transition duration-300 ease-in-out transform hover:scale-105 shadow-lg">
-                  Submit Your Complaint Now
-                </button>
-              </Link>
-            ) : (
-              <Link to="/login">
-                <button className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-8 rounded-full transition duration-300 ease-in-out transform hover:scale-105 shadow-lg">
-                  Submit Your Complaint Now
-                </button>
-              </Link>
-            )}
+            {!isAdmin &&
+              (isLoggedIn ? (
+                <Link to={`/client/dashboard`}>
+                  <button className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-8 rounded-full transition duration-300 ease-in-out transform hover:scale-105 shadow-lg">
+                    Submit Your Complaint Now
+                  </button>
+                </Link>
+              ) : (
+                <Link to="/login">
+                  <button className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-8 rounded-full transition duration-300 ease-in-out transform hover:scale-105 shadow-lg">
+                    Submit Your Complaint Now
+                  </button>
+                </Link>
+              ))}
+
             <div className="mt-8 flex justify-center lg:justify-start space-x-6">
               <Link
                 to="contact"

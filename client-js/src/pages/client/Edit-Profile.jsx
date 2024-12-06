@@ -6,6 +6,7 @@ import {
   FaUser,
   FaHome,
   FaIdCardAlt,
+  FaRegUserCircle ,
   FaBuilding,
 } from "react-icons/fa";
 
@@ -24,6 +25,7 @@ const EditProfilePage = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const navigate = useNavigate(); // Navigation hook to redirect on successful login
   const params = useParams();
+  const [imageBase64, setImageBase64] = useState(null);
 
   const togglePasswordVisibility = (field) => {
     switch (field) {
@@ -162,7 +164,23 @@ const EditProfilePage = () => {
                 disabled
               />
             </div>
-
+            <div className="bg-purple-100 p-4 rounded-lg">
+              <label
+                htmlFor="image"
+                className="block text-sm font-medium text-blue-700 mb-1"
+              >
+                <FaRegUserCircle  className="inline mr-2" /> User Image
+              </label>
+              {user?.face_image && (
+                <div className="justify-center m-auto">
+                  <img
+                    src={user?.face_image}
+                    alt="Uploaded preview"
+                    className="w-32 h-32 object-cover mt-2 justify-center"
+                  />
+                </div>
+              )}
+            </div>
             <div className="pt-6">
               <h2 className="text-2xl font-semibold mb-4 text-red-600">
                 Change Password
@@ -267,7 +285,7 @@ const EditProfilePage = () => {
           </div>
 
           <div className="mt-8 flex justify-end space-x-4">
-            <Link href={`/client/${user?.username}/dashboard`}>
+            <Link to={`/client/dashboard`}>
               <button
                 type="button"
                 className="px-6 py-3 border border-gray-300 rounded-full text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-lg"

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import {
   FaUserCog,
@@ -13,15 +12,16 @@ import {
   FaHeadset,
   FaUser,
   FaBook,
+  FaChartBar,
   FaDoorOpen,
 } from "react-icons/fa";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
-import { Link,NavLink,useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../store/auth";
-
+import { MdCancel } from "react-icons/md";
 
 const Dashboard = () => {
-  const { isLoggedIn, user,API } = useAuth();
+  const { isLoggedIn, user, API } = useAuth();
   const [userId, setUserId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [complaintData, setComplaintData] = useState([]);
@@ -31,11 +31,8 @@ const Dashboard = () => {
     // Set user data on component mount
     setUserId(user?._id);
     // Fetch complaints data from API when the user is available
-      getComplaints();
-
-  }, [isLoggedIn,user]);
-
-  
+    getComplaints();
+  }, [isLoggedIn, user]);
 
   // Function to fetch complaints
   const getComplaints = async () => {
@@ -53,7 +50,7 @@ const Dashboard = () => {
       setLoading(false);
     }
   };
-  
+
   const grievanceCategories = [
     {
       icon: <FaUserCog />,
@@ -100,11 +97,11 @@ const Dashboard = () => {
       buttonText: "Raise a Grievance",
     },
     {
-      icon: <FaPencilAlt />,
-      name: "Action",
+      icon: <FaChartBar />,
+      name: "All Complaints History",
       description: "View Your Last or All Complaint History.",
       link: "/client/complaints",
-      buttonText: "Raise a Grievance",
+      buttonText: "View All",
     },
     {
       icon: <FaCheckCircle />,
@@ -152,16 +149,26 @@ const Dashboard = () => {
     {
       label: "Pending",
       value: complaintData.filter(
-        (grievance) => grievance.status === "Not Processed"
+        (grievance) =>
+          grievance.status === "Not Processed" ||
+          grievance.status === "In Progress"
       ).length,
       icon: <FaPencilAlt />,
+    },
+    {
+      label: "Cancelled",
+      value: complaintData.filter(
+        (grievance) =>
+          grievance.status === "Cancelled"
+      ).length,
+      icon: <MdCancel  />,
     },
   ];
 
   const quickLinks = [
     { label: "FAQ", icon: <FaQuestionCircle />, link: "/faq" },
     { label: "Contact Support", icon: <FaHeadset />, link: "/support" },
-    { label: "Policy Guidelines", icon: <FaBook />, link: "/policies" },
+    { label: "Policy Guidelines", icon: <FaBook />, link: "/rule-regulations" },
   ];
 
   return (
@@ -189,9 +196,7 @@ const Dashboard = () => {
           </div>
           <div className="flex items-center text-pink-700 font-medium">
             <FaDoorOpen className="inline mr-2" />
-            <span className="border-pink-300 text-pink-800">
-              {user?.room}
-            </span>
+            <span className="border-pink-300 text-pink-800">{user?.room}</span>
           </div>
         </div>
       </header>
@@ -258,7 +263,7 @@ const Dashboard = () => {
             </thead>
             <tbody className="divide-y divide-gray-200">
               {complaintData.length > 0 ? (
-                complaintData.map((grievance, index) => (
+                complaintData.slice(0, 5).map((grievance, index) => (
                   <tr
                     key={index}
                     className="hover:bg-gray-100 transition-colors duration-200"
@@ -285,20 +290,19 @@ const Dashboard = () => {
                       <span
                         className={`px-2 inline-flex text-sm leading-5 font-semibold rounded-full ${
                           grievance.status === "Resolved"
-                          ? "bg-green-300 text-green-900"
-                          : grievance.status === "Urgent"
-                          ? "bg-red-200 text-red-800"
-                          : grievance.status === "Cancelled"
-                          ? "bg-orange-200 text-orange-800"
-                          : grievance.status === "Pending"
-                          ? "bg-orange-200 text-orange-800"
-                          : grievance.status === "In Progress"
-                          ? "bg-blue-200 text-blue-600"
-                          : grievance.status === "Procced"
-                          ? "bg-green-200 text-green-600"
-                          : "bg-yellow-200 text-yellow-800"
-
-                          }`}
+                            ? "bg-green-300 text-green-900"
+                            : grievance.status === "Urgent"
+                            ? "bg-red-200 text-red-800"
+                            : grievance.status === "Cancelled"
+                            ? "bg-orange-200 text-orange-800"
+                            : grievance.status === "Pending"
+                            ? "bg-orange-200 text-orange-800"
+                            : grievance.status === "In Progress"
+                            ? "bg-blue-200 text-blue-600"
+                            : grievance.status === "Procced"
+                            ? "bg-green-200 text-green-600"
+                            : "bg-yellow-200 text-yellow-800"
+                        }`}
                       >
                         {grievance.status}
                       </span>

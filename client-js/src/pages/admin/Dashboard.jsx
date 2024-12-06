@@ -27,7 +27,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import AdminSidebar from "../../components/Admin-Sidebar";
 import { useAuth } from "../../store/auth";
 
@@ -76,7 +76,10 @@ const AdminDashboard = () => {
 
   const allComplaints = complaintData.length;
   const pendingNumber = complaintData.filter(
-    (grievance) => grievance?.status === "Not Processed"
+    (grievance) => grievance?.status === "Not Processed" || grievance?.status === "In Progress"
+  ).length;
+  const cancelledNumber = complaintData.filter(
+    (grievance) => grievance?.status === "Cancelled"
   ).length;
   const resolvedNumber = complaintData.filter(
     (grievance) => grievance?.status === "Resolved"
@@ -181,7 +184,7 @@ const AdminDashboard = () => {
     {
       title: "Pending",
       value: complaintData.filter(
-        (grievance) => grievance.status === "Not Processed"
+        (grievance) => grievance.status === "Not Processed" || grievance.status === "In Progress"
       ).length,
       color: "bg-yellow-500",
       progress: (pendingNumber / allComplaints) * 100,
@@ -200,7 +203,15 @@ const AdminDashboard = () => {
       color: "bg-red-500",
       progress: (urgentNumber / allComplaints) * 100,
     },
+    {
+      title: "Cancelled Issues",
+      value: cancelledNumber,
+      color: "bg-orange-500",
+      progress: (cancelledNumber / allComplaints) * 100,
+    },
   ];
+
+  
 
   // Line chart initial structure
   const [lineChartData, setLineChartData] = useState({
@@ -256,12 +267,12 @@ const AdminDashboard = () => {
   }, [complaintData]);
 
   const pieChartData = {
-    labels: ["Pending", "Resolved", "Urgent"],
+    labels: ["Pending", "Resolved", "Urgent","Cancelled"],
     datasets: [
       {
-        data: [pendingNumber, resolvedNumber, urgentNumber],
-        backgroundColor: ["#FFCE56", "#22C55E", "#EF4444"],
-        hoverBackgroundColor: ["#FFCE56", "#22C55E", "#EF4444"],
+        data: [pendingNumber, resolvedNumber, urgentNumber,cancelledNumber],
+        backgroundColor: ["#FFCE56", "#22C55E", "#EF4444","#F97316"],
+        hoverBackgroundColor: ["#FFCE56", "#22C55E", "#EF4444","#F97316"],
       },
     ],
   };
@@ -359,50 +370,6 @@ const AdminDashboard = () => {
     }
   };
 
-  const recentGrievances = [
-    {
-      id: "GR001",
-      category: "Hostel",
-      userName: "John Doe",
-      status: "Pending",
-    },
-    {
-      id: "GR002",
-      category: "Mess",
-      userName: "Jane Smith",
-      status: "Resolved",
-    },
-    {
-      id: "GR003",
-      category: "Facilities",
-      userName: "Bob Johnson",
-      status: "Urgent",
-    },
-    {
-      id: "GR004",
-      category: "Security",
-      userName: "Alice Brown",
-      status: "In Progress",
-    },
-  ];
-
-  const actionLog = [
-    {
-      action: "Resolved GR002",
-      admin: "Admin1",
-      timestamp: "2023-06-15 10:30 AM",
-    },
-    {
-      action: "Escalated GR004",
-      admin: "Admin2",
-      timestamp: "2023-06-15 11:45 AM",
-    },
-    {
-      action: "Responded to GR001",
-      admin: "Admin1",
-      timestamp: "2023-06-15 02:15 PM",
-    },
-  ];
 
   const notifications = [
     { id: 1, message: "New complaint received (GR005)" },
@@ -619,7 +586,7 @@ const AdminDashboard = () => {
                           </td>
                           <td className="p-3">
                             <Link
-                              href={`/admin/${user?._id}/singleissue/${grievance?._id}`}
+                              to={`/admin/single-issue/view/${grievance?._id}`}
                             >
                               <button className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-colors duration-200">
                                 View

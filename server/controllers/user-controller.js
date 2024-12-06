@@ -122,14 +122,14 @@ const getIssuesAllUser = async (req, res, next) => {
         const { userId } = req.params;
 
         // Fetch data from all models where `user` matches the provided user
-        const drinkWaterData = await DrinkWater.find({ user: userId });
-        const roomData = await Room.find({ user: userId });
-        const commonAreaData = await CommonArea.find({ user: userId });
-        const corridorData = await Corridor.find({ user: userId });
-        const foodQualityData = await FoodQuality.find({ user: userId });
-        const foodOwnerData = await FoodOwner.find({ user: userId });
-        const networkData = await NetworkConn.find({ user: userId });
-        const safetyData = await Safety.find({ user: userId });
+        const drinkWaterData = await DrinkWater.find({ user: userId }).select('-actionLog -image');
+        const roomData = await Room.find({ user: userId }).select('-actionLog -image');
+        const commonAreaData = await CommonArea.find({ user: userId }).select('-actionLog -image');
+        const corridorData = await Corridor.find({ user: userId }).select('-actionLog -image');
+        const foodQualityData = await FoodQuality.find({ user: userId }).select('-actionLog -image');
+        const foodOwnerData = await FoodOwner.find({ user: userId }).select('-actionLog -image');
+        const networkData = await NetworkConn.find({ user: userId }).select('-actionLog -image');
+        const safetyData = await Safety.find({ user: userId }).select('-actionLog -image');
 
         // Combine all the arrays into one with categories
         const combinedData = [

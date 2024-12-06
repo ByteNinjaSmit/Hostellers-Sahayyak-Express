@@ -40,6 +40,7 @@ import SeeAllUsers from "./pages/dev/All-Users";
 import DeveloperLogin from "./pages/dev/Login-Dev";
 import { DeveloperLayout } from "./components/layout/Developer-Layout";
 import SeeAllAdmins from "./pages/dev/All-Admins";
+import GrievanceManagementUser from "./pages/client/All-Issues";
 
 const App = () => {
   const location = useLocation();
@@ -94,6 +95,11 @@ const App = () => {
             exact
             path="singleissue/:id/:user"
             element={<GrievanceView />}
+          />
+          <Route
+            exact
+            path="complaints"
+            element={<GrievanceManagementUser />}
           />
           <Route exact path="face" element={<FacialRecognition />} />
           <Route exact path="face-upload" element={<ImageUpload />} />

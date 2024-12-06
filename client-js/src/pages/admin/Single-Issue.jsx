@@ -12,6 +12,7 @@ import {
   FaEdit,
   FaCommentDots,
 } from "react-icons/fa";
+import { MdOutlineCategory } from "react-icons/md";
 import { IoMdArrowRoundBack } from "react-icons/io";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../../store/auth";
@@ -26,7 +27,7 @@ const GrievanceViewAdmin = () => {
   const [actionLog, setActionLog] = useState([]);
   const [complaintData, setComplaintData] = useState(null);
   const [category, setCategory] = useState(null);
-  const { API, isHighAuth, isRector,user } = useAuth();
+  const { API, isHighAuth, isRector, user } = useAuth();
   const navigate = useNavigate();
   useEffect(() => {
     const fetchGrievance = async () => {
@@ -105,7 +106,7 @@ const GrievanceViewAdmin = () => {
       if (response.ok) {
         const data = await response.json(); // Parse the response
         toast.success("Action successfully updated!");
-        navigate("/admin/overview")
+        navigate("/admin/overview");
       } else {
         toast.error("Failed to update the issue");
       }
@@ -146,7 +147,7 @@ const GrievanceViewAdmin = () => {
         return true; // Block any status selection
       }
       //if (option === "Resolved" && currentStatus !== "Resolved") {
-       // return true; // Show in dropdown but not selectable
+      // return true; // Show in dropdown but not selectable
       //}
       return option !== " "; // Exclude Resolved from dropdown if it is selected
     });
@@ -174,7 +175,7 @@ const GrievanceViewAdmin = () => {
   const isActionFormVisible = () => {
     return !(status === "Cancelled" || status === "Not Resolved");
   };
-  
+
   return (
     <div
       className="container mx-auto px-4 py-8 max-w-4xl"
@@ -207,6 +208,13 @@ const GrievanceViewAdmin = () => {
                 Complaint ID: {`${complaintData._id}`}
               </h2>
               <div className="mb-4">
+              <h3 className="text-xl font-medium text-orange-600 flex items-center gap-2 mb-4">
+                  <MdOutlineCategory className="text-2xl text-orange-500" />
+                  Complaint Type:{" "}
+                  <span className="text-orange-700 font-semibold">
+                    {category}
+                  </span>
+                </h3>
                 <h3 className="text-lg font-medium text-gray-700 mb-2">
                   Complaints:
                 </h3>
@@ -218,6 +226,7 @@ const GrievanceViewAdmin = () => {
                     </li>
                   ))}
                 </ul>
+
               </div>
               <div className="flex items-center justify-between bg-gray-100 p-4 rounded">
                 <span
@@ -349,7 +358,9 @@ const GrievanceViewAdmin = () => {
                     value={status}
                     onChange={handleStatusChange}
                     disabled={
-                      status === "Cancelled" || status === "Not Resolved"|| status === "Resolved"
+                      status === "Cancelled" ||
+                      status === "Not Resolved" ||
+                      status === "Resolved"
                     }
                   >
                     {getStatusOptions(status)?.map((option, index) => (
@@ -357,9 +368,10 @@ const GrievanceViewAdmin = () => {
                         key={index}
                         value={option}
                         disabled={
-                          (option === "Resolved" ) ||
+                          option === "Resolved" ||
                           option === "Not Processed" ||
-                          option === "Urgent" || option === "Not Resolved"
+                          option === "Urgent" ||
+                          option === "Not Resolved"
                         }
                         className={`${getStatusStyles(option)}`} // Apply styles dynamically based on option
                       >
@@ -380,7 +392,7 @@ const GrievanceViewAdmin = () => {
                   <textarea
                     id="remarks"
                     rows={4}
-                    className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                    className={`w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600`}
                     value={remarks}
                     onChange={handleRemarksChange}
                     required
