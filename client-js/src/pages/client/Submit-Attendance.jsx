@@ -150,7 +150,7 @@ const FaceRecognitionAttendance = () => {
         .detectAllFaces(refFace)
         .withFaceLandmarks()
         .withFaceDescriptors();
-      const faceMatcher = new faceapi.FaceMatcher(refFaceAiData);
+      const faceMatcher = new faceapi.FaceMatcher(refFaceAiData,0.5);
 
       // Capture and compare frames continuously
       const intervalId = setInterval(async () => {

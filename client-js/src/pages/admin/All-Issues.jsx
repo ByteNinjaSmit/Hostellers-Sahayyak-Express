@@ -288,6 +288,8 @@ const GrievanceManagementSystem = () => {
                           (grievance?.status === "Not Processed" &&
                             isOlderThanTwoDays) ||
                           grievance?.status === "Resolved" ||
+                          grievance?.status === "Cancelled" ||
+                          grievance?.status === "In Progress" ||
                           grievance?.status === "Urgent";
                         const match = shouldShow && hostelIdMatch;
                         return match;

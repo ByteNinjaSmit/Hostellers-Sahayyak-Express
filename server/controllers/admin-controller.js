@@ -26,56 +26,56 @@ const getAllIssues = async (req, res, next) => {
         const drinkWaterData = await DrinkWater.find().populate({
             path: "user",
             model: "User", // Ensure you explicitly use the User model
-            select: "-password",
+            select: "-password -face_image",
             options: { strictPopulate: false },
         });
 
         const roomData = await Room.find().populate({
             path: "user",
             model: "User",
-            select: "-password",
+            select: "-password -face_image",
             options: { strictPopulate: false },
         });
 
         const commonAreaData = await CommonArea.find().populate({
             path: "user",
             model: "User",
-            select: "-password",
+            select: "-password -face_image",
             options: { strictPopulate: false },
         });
 
         const corridorData = await Corridor.find({}, "-image").populate({
             path: "user",
             model: "User",
-            select: "-password",
+            select: "-password -face_image",
             options: { strictPopulate: false },
         });
 
         const foodQualityData = await FoodQuality.find().populate({
             path: "user",
             model: "User",
-            select: "-password",
+            select: "-password -face_image",
             options: { strictPopulate: false },
         });
 
         const foodOwnerData = await FoodOwner.find().populate({
             path: "user",
             model: "User",
-            select: "-password",
+            select: "-password -face_image",
             options: { strictPopulate: false },
         });
 
         const networkData = await NetworkConn.find().populate({
             path: "user",
             model: "User",
-            select: "-password",
+            select: "-password -face_image",
             options: { strictPopulate: false },
         });
 
         const safetyData = await Safety.find().populate({
             path: "user",
             model: "User",
-            select: "-password",
+            select: "-password -face_image",
             options: { strictPopulate: false },
         });
 
@@ -154,7 +154,7 @@ const getIssue = async (req, res) => {
 
         // Try to fetch data from each model and return the first found document
         for (const { model, category } of models) {
-            foundDocument = await model.findById({ _id: issueid }).populate("user", "-password").exec();
+            foundDocument = await model.findById({ _id: issueid }).populate("user", "-password -face_image").exec();
             if (foundDocument) {
                 foundCategory = category; // Save the found category
                 break; // Exit loop once a document is found

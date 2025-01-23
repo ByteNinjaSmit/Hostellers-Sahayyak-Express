@@ -28,8 +28,8 @@ const GrievanceForm = () => {
       if (file.size > 250 * 1024) {
         Resizer.imageFileResizer(
           file, // The original file
-          800, // Max width
-          800, // Max height
+          500, // Max width
+          500, // Max height
           "JPEG", // Output format
           80, // Quality (0-100)
           0, // Rotation (optional)
