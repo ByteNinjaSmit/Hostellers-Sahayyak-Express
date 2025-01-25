@@ -15,6 +15,8 @@ import {
   FaChartBar,
   FaDoorOpen,
 } from "react-icons/fa";
+import { FaCalendarDays } from "react-icons/fa6";
+
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../store/auth";
@@ -101,6 +103,13 @@ const Dashboard = () => {
       name: "All Complaints History",
       description: "View Your Last or All Complaint History.",
       link: "/client/complaints",
+      buttonText: "View All",
+    },
+    {
+      icon: <FaCalendarDays />,
+      name: "Attendance",
+      description: "Mark Attendance and View History.",
+      link: "/client/attendance",
       buttonText: "View All",
     },
     {

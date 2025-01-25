@@ -51,5 +51,21 @@ router.route("/get-attendance-by-hostel-and-date/:hostelId/:date").get(adminCont
 router.route("/save-attendance-one-by-one").post(adminControllers.putAttendanceOneByOneUserData);
 
 
+//------------
+// Regarding Hostel Location
+//------------
+
+// New Location
+router.route("/new-hostel-location").post(adminControllers.newHostelAddr);
+// Get Location
+router.route("/get-hostel-location/:name").get(adminControllers.getHostelLocation);
+// Update Location
+router.route("/update-hostel-location/:id").patch(adminControllers.updateHostelLocation);
+// Delete Location
+router.route("/delete-hostel-location/:id").delete(adminControllers.deleteHostelLocation);
+// GET ALL hostel Location
+router.route("/get-all-hostel-location").get(adminControllers.getAllHostelLocation);
+
+
 module.exports = router;
 

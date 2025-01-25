@@ -8,6 +8,9 @@ const FoodOwner = require("../models/food-owner-model");
 const NetworkConn = require("../models/network-model");
 const Safety = require("../models/safety-model");
 const User = require("../models/user-model");
+const Attendance = require("../models/attendance-model");
+const HostelAddress = require("../models/hostel-location-model");
+
 // Set up storage engine (default to memory storage)
 
 
@@ -18,7 +21,7 @@ const User = require("../models/user-model");
 const newIssue = async (req, res, next) => {
     try {
         const { user, issue } = req.params;
-        const { relevantData, foodownerName, foodServiceType,image } = req.body;
+        const { relevantData, foodownerName, foodServiceType, image } = req.body;
 
         // Helper function to validate relevantData
         const isValidComplaint = (relevantData) => {
@@ -309,15 +312,15 @@ const getUser = async (req, res, next) => {
 // GET User Image
 // --------------------
 
-const getUserImage = async (req,res,next)=>{
+const getUserImage = async (req, res, next) => {
     try {
-        const {userId} = req.params;
-        if(!userId){
-            return res.status(400).json({error: "User ID is required"})
+        const { userId } = req.params;
+        if (!userId) {
+            return res.status(400).json({ error: "User ID is required" })
         }
-        const user = await User.find({_id:userId}).select('face_image').exec();
-        if(!user){
-            return res.status(404).json({error:"User not found"})
+        const user = await User.find({ _id: userId }).select('face_image').exec();
+        if (!user) {
+            return res.status(404).json({ error: "User not found" })
         }
         res.status(200).json(user);
     } catch (error) {
@@ -331,20 +334,169 @@ const getUserImage = async (req,res,next)=>{
 
 const storeUserImage = async (req, res, next) => {
     try {
-        const {userId,image} = req.body;
+        const { userId, image } = req.body;
         if (!userId || !image) {
             return res.status(400).json({ error: "User ID and Image are required" })
         }
-        
-        const user = await User.findByIdAndUpdate({_id:userId}, { $set: { face_image: image } },{ new: true }).exec();
+
+        const user = await User.findByIdAndUpdate({ _id: userId }, { $set: { face_image: image } }, { new: true }).exec();
         if (!user) {
             return res.status(404).json({ error: "User not found" })
         }
-        return res.status(200).json({message:"Image Successfully Stored"});
+        return res.status(200).json({ message: "Image Successfully Stored" });
+    } catch (error) {
+        next(error);
+    }
+}
+
+const getAttendance = async (req, res, next) => {
+    try {
+        const { id } = req.params; // User ID from params
+        if (!id) {
+            return res.status(400).json({ error: "User ID is required" });
+        }
+
+        // Find all attendance records where the user is part of the students array
+        const attendanceRecords = await Attendance.find({
+            "students.student": id, // Filter for entries where the user exists in the students array
+        })
+            .select("date students -_id");
+
+        // Map and filter the attendance data to return only the user's status and remarks
+        const userAttendance = attendanceRecords.map((record) => {
+            const studentData = record.students.find(
+                (student) => student.student._id.toString() === id
+            );
+            return {
+                date: record.date,
+                status: studentData?.status,
+                remarks: studentData?.remarks,
+            };
+        });
+
+        return res.status(200).json(userAttendance);
+    } catch (error) {
+        next(error); // Pass the error to the global error handler
+    }
+};
+
+
+// Getting Hostel Location Address
+
+// Get Location of hostel
+const getHostelLocation = async (req, res, next) => {
+    try {
+        const { name } = req.params;
+        if (!name) {
+            return res.status(400).json({ message: "Hostel name is required." })
+        }
+        const hostel = await HostelAddress.findOne({ hostelName: name })
+        if (!hostel) {
+            return res.status(404).json({ message: "Hostel not found." })
+        }
+        return res.status(200).json(hostel);
     } catch (error) {
         next(error);
     }
 }
 
 
-module.exports = { newIssue, getIssuesAllUser, getIssue, deleteIssue, updateIssueStatus,getUser,getUserImage,storeUserImage };
+// --------------
+// PUT Attendance One By One User Data
+// --------------
+const putAttendanceOneByOneUserData = async (req, res, next) => {
+    try {
+        const { userId, date, hostelId, status } = req.body;
+
+        // Validate the request data
+        if (!userId || !date || !hostelId || !status) {
+            return res.status(400).json({ message: "Invalid data" });
+        }
+        if (status !== "Present" || status !== "Leave") {
+            return res.status(400).json({ message: "Invalid status" });
+        }
+
+        // Parse the date for consistent querying
+        const attendanceDate = new Date(date);
+
+        // Find the attendance document for the given date and hostel
+        let attendance = await Attendance.findOne({ date: attendanceDate, hostel: hostelId });
+
+        if (!attendance) {
+            // If attendance doesn't exist, create a new document
+            attendance = new Attendance({
+                date: attendanceDate,
+                hostel: hostelId,
+                students: []
+            });
+        }
+
+        // Check if the student already exists in the students array
+        const studentIndex = attendance.students.findIndex(s => s.student.toString() === userId);
+
+        if (studentIndex > -1) {
+            // If the student exists, update their status
+            attendance.students[studentIndex].status = status;
+        } else {
+            // If the student doesn't exist, add them to the students array
+            attendance.students.push({
+                student: userId,
+                status,
+                remarks: "", // Default remarks
+            });
+        }
+
+        // Save the updated attendance document
+        await attendance.save();
+
+        // Respond to the client
+        return res.status(200).json({ message: "Attendance Marked successfully", });
+    } catch (error) {
+        // Handle errors and pass them to the error-handling middleware
+        next(error);
+    }
+};
+
+const getTodaysAttendance = async (req, res, next) => {
+    try {
+        const { id, curentdate,name } = req.params;
+
+        if (!id || !curentdate ||!name) {
+            return res.status(400).json({ error: "User ID and Date are required" });
+        }
+
+        // Parse the date to ensure it's in the correct format
+        // const formattedDate = new Date(date).toISOString().slice(0, 10); // Format as YYYY-MM-DD
+
+        // Find the attendance for the user on the specified date
+        const attendance = await Attendance.findOne({
+            "students.student": id,
+            date: curentdate, // Range for today's date
+            hostel:name,
+        });
+
+        if (!attendance) {
+            return res.status(404).json({ error: "Attendance not found for this user on today's date" });
+        }
+
+        // Check the student's attendance status
+        const studentAttendance = attendance.students.find(student => student.student.toString() === id);
+
+        if (!studentAttendance) {
+            return res.status(404).json({ error: "Attendance record for this student not found" });
+        }
+
+        // If the status is 'Present' or 'Leave', return true or false respectively
+        const isPresent = studentAttendance.status === "Present";
+
+        return res.json({ isPresent });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+
+
+module.exports = { newIssue, getIssuesAllUser, getIssue, deleteIssue, updateIssueStatus, getUser, getUserImage, storeUserImage, getAttendance, getHostelLocation, putAttendanceOneByOneUserData,getTodaysAttendance };

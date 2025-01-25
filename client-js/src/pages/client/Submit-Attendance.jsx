@@ -9,89 +9,154 @@ import {
 import * as faceapi from "face-api.js";
 import { useAuth } from "../../store/auth";
 import Webcam from "react-webcam";
-
+import { useGeolocated } from "react-geolocated";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { Link, useNavigate, useParams } from "react-router-dom";
 const FaceRecognitionAttendance = () => {
   const [isCameraActive, setIsCameraActive] = useState(false);
-  const [locationStatus, setLocationStatus] = useState("checking");
+  // const [locationStatus, setLocationStatus] = useState("checking");
   const [recognitionStatus, setRecognitionStatus] = useState("waiting");
   const [attendanceMarked, setAttendanceMarked] = useState(false);
   const [error, setError] = useState(null);
   const [currentTime, setCurrentTime] = useState("");
+  const { API, user } = useAuth();
+  const [status, setStatus] = useState("");
+  const [currentDate, setCurrentDate] = useState(null);
+  const navigate = useNavigate();
+  const [isPresent, setIsPresent] = useState(false);
+  const [isLoading , setIsLoading]  =useState(true);
+
+
+  // Current Date
+  useEffect(() => {
+    if (currentDate === null) {
+      const now = new Date();
+
+      // Get IST by adding 5 hours 30 minutes to UTC
+      const offset = 5.5 * 60 * 60 * 1000; // IST offset in milliseconds
+      const indianTime = new Date(now.getTime() + offset);
+
+      // Set time to 00:00:00.000 for the IST date
+      indianTime.setUTCHours(0, 0, 0, 0);
+
+      // Convert to ISO string and ensure the format matches the required 'T00:00:00.000Z'
+      const isoString = indianTime.toISOString(); // Format: '2025-01-25T00:00:00.000Z'
+
+      setCurrentDate(isoString);
+    }
+  }, []);
+
+  // console.log(currentDate);
+  
+  const checkPresent = async () => {
+    try {
+      const response = await axios.get(
+        `${API}/api/user/get-attendance-current/${user._id}/${currentDate}/${user.hostelId}`
+      );
+
+      if (response.status === 200) {
+        const data = response.data;
+        if (data.isPresent) {
+          navigate("/client/attendance");  // Navigate if present
+        } else {
+          console.log("Attendance not marked as present or leave", data);
+        }
+      }
+    } catch (error) {
+      console.error("Error checking attendance:", error);
+    }finally{
+      setIsLoading(false);
+    }
+  };
+  useEffect(() => {
+    if(currentDate!==null){
+      
+      checkPresent();
+    }
+  }, [currentDate]); // Added navigate to dependency array
 
   // --------------------------
   // Location Within range Logic in Specefic diameter
   //-----------------------
   const [isWithinRange, setIsWithinRange] = useState(false);
+  const [currentDistance, setCurrentDistance] = useState(null);
+  const [locationStatus, setLocationStatus] = useState("unknown");
+  const [targetLatitude, setTargetLatitude] = useState(null);
+  const [targetLongitude, setTargetLongitude] = useState(null);
+  const [allowedRadius, setAllowedRadius] = useState(null);
 
-  const Latitude = 19.48888466843967; //This is Limit
-  const Longitude = 74.92649700810367; // This Is Limit
-  const Radius = 50; // 50 Meter Radius
+  const getLocation = async () => {
+    try {
+      const response = await axios.get(`${API}/api/user/get-hostel-location/${user.hostelId}`)
+      const data = response.data;
+      setTargetLatitude(data.latitude);
+      setTargetLongitude(data.longitude);
+      setAllowedRadius(data.radius);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
-  // Function to calculate distance between two coordinates using Haversine formula
+  // const targetLatitude = 19.488729; //This is Limit
+  // const targetLongitude = 74.926598; // This Is Limit
+  // const allowedRadius = 50; // 50 Meter Radius
+
+  // Haversine formula to calculate distance between two coordinates
   const haversineDistance = (lat1, lon1, lat2, lon2) => {
     const R = 6371; // Earth radius in km
     const dLat = ((lat2 - lat1) * Math.PI) / 180;
     const dLon = ((lon2 - lon1) * Math.PI) / 180;
-
     const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.sin(dLat / 2) ** 2 +
       Math.cos((lat1 * Math.PI) / 180) *
-        Math.cos((lat2 * Math.PI) / 180) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) ** 2;
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distance = R * c * 1000; // Distance in meters
-    console.log(`Distance: ${distance}`);
-
-    return distance;
+    return R * c * 1000; // Distance in meters
   };
 
-  // Get user's current position
+  // // Get user's current position
 
-  const checkLocation = () => {
-    setIsWithinRange(false);
-    setLocationStatus("out of range");
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude, accuracy } = position.coords; // Get latitude, longitude, and accuracy
-        console.log(`Latitude: ${latitude}`);
-        console.log(`Longitude: ${longitude}`);
-        console.log(`Accuracy: ${accuracy} meters`);
+  // Function to verify user's location
+  const {
+    coords, // Latitude and Longitude
+    isGeolocationAvailable,
+    isGeolocationEnabled,
+    errorMessage,
+  } = useGeolocated({
+    positionOptions: {
+      enableHighAccuracy: true, // Disable high accuracy mode for faster results
+      timeout: 2000, // Timeout in milliseconds (set to 3 seconds for quicker response)
+      maximumAge: 0, // Prevent cached location usage
+    },
+    watchPosition: true, // Get location only once
+  });
 
-        // Check if the accuracy is good enough (e.g., within 50 meters)
-        if (accuracy <= 1000) {
-          // Calculate the distance between current position and target location
-          const distance = haversineDistance(
-            latitude,
-            longitude,
-            Latitude,
-            Longitude
-          );
+  // Check if the user is within range
+  const verifyLocation = () => {
+    if (coords) {
+      const { latitude, longitude } = coords;
+      const distance = haversineDistance(
+        latitude,
+        longitude,
+        targetLatitude,
+        targetLongitude
+      );
+      setCurrentDistance(distance);
 
-          if (distance <= Radius) {
-            setLocationStatus("verified");
-            setIsWithinRange(true); // User is within the allowed radius
-          } else {
-            setLocationStatus("out of range");
-            setIsWithinRange(false); // User is outside the allowed radius
-          }
-        } else {
-          console.log("low accuracy"); // Accuracy is 153377 meters is very low
-          setLocationStatus("low accuracy"); // Location accuracy is not good enough
-        }
-      },
-      (error) => {
-        setLocationStatus("error");
-        console.error("Error getting location", error);
-      },
-      {
-        enableHighAccuracy: true, // Request higher accuracy if possible
-        timeout: 5000, // Timeout for getting location (in milliseconds)
-        maximumAge: 0, // Do not use cached location
+      if (distance <= allowedRadius) {
+        setLocationStatus("Verified");
+        setIsWithinRange(true);
+      } else {
+        setLocationStatus("Out of range");
+        setIsWithinRange(false);
       }
-    );
+    } else {
+      setLocationStatus("Location not available.");
+      setIsWithinRange(false);
+    }
   };
-
 
   //----------------------
   // Face Recognation Model
@@ -104,7 +169,6 @@ const FaceRecognitionAttendance = () => {
   const [loading, setLoading] = useState(false);
   const [isModelLoad, setIsModelLoad] = useState(false);
   const [userImageGot, setUserImageGot] = useState(false);
-  const { API, user } = useAuth();
 
   // Check in range or not
 
@@ -150,7 +214,7 @@ const FaceRecognitionAttendance = () => {
         .detectAllFaces(refFace)
         .withFaceLandmarks()
         .withFaceDescriptors();
-      const faceMatcher = new faceapi.FaceMatcher(refFaceAiData,0.5);
+      const faceMatcher = new faceapi.FaceMatcher(refFaceAiData, 0.5);
 
       // Capture and compare frames continuously
       const intervalId = setInterval(async () => {
@@ -190,6 +254,8 @@ const FaceRecognitionAttendance = () => {
             // If a match is found
             setIsFaceMatched(true);
             setRecognitionStatus(`recognized`);
+            setStatus("Present");
+            verifyLocation();
 
             const drawBox = new faceapi.draw.DrawBox(detection.box, {
               label: user?.name, // replace with user.name
@@ -209,17 +275,17 @@ const FaceRecognitionAttendance = () => {
   // Start camera function
   const handleStartCamera = () => {
     setIsCameraActive(true);
-    checkLocation();
+    // checkLocation();
   };
 
   // useEffect hook to run face mesh when the camera is active
   useEffect(() => {
-    if (isCameraActive && userImageGot && !isWithinRange) {
+    if (isCameraActive && userImageGot && coords) {
       // Load the face mesh model
       runFacialRecognition();
-      checkLocation();
+      // checkLocation();
     }
-  }, [isCameraActive, userImageGot, isWithinRange]);
+  }, [isCameraActive, userImageGot, coords]);
 
   //--------------------
   // Other Functions
@@ -239,6 +305,49 @@ const FaceRecognitionAttendance = () => {
 
     return () => clearInterval(timer);
   }, []);
+  // Setting Current Date 
+
+  // console.log(currentDate);
+  // ---------------------
+  // Attendance Submit Handle Submit
+  // ------------------------
+  const handleAttendanceSubmit = async (e, newStatus) => {
+    e.preventDefault();
+
+    try {
+      // Send the POST request with the data
+      const response = await fetch(`${API}/api/admin/save-attendance-one-by-one`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json", // Ensure the server knows you're sending JSON
+        },
+        body: JSON.stringify({
+          userId: user._id,
+          date: currentDate,
+          hostelId: user.hostelId,
+          status: newStatus,
+        }), // Convert the data to a JSON string
+      });
+
+      // Handle response
+      if (response.ok) {
+        console.log("Attendance submitted successfully:");
+        toast.success("Attendance submitted successfully")
+        navigate("/client/attendance");
+      } else {
+        console.log("Error submitting attendance:", response.status);
+        toast.error("Error submitting attendance");
+      }
+    } catch (error) {
+      console.error("Error during the fetch request:", error);
+    }
+  };
+
+
+
+  if (isLoading) {
+    return <div>Loading...</div>
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 p-4 md:p-8">
@@ -296,20 +405,19 @@ const FaceRecognitionAttendance = () => {
             <div className="p-4 bg-gray-50 rounded-lg">
               <div className="flex items-center space-x-3">
                 <FaMapMarkerAlt
-                  className={`text-2xl ${
-                    locationStatus === "verified"
-                      ? "text-green-500"
-                      : "text-yellow-500"
-                  }`}
+                  className={`text-2xl ${locationStatus === "verified"
+                    ? "text-green-500"
+                    : "text-yellow-500"
+                    }`}
                 />
                 <div>
                   <h3 className="font-semibold">Location Status</h3>
                   <p className="text-sm text-gray-600">
-                    {locationStatus === "verified"
+                    {locationStatus === "Verified"
                       ? "Within attendance zone"
                       : "Checking location..."}
                   </p>
-                  {locationStatus === "out of range" && (
+                  {locationStatus === "Out of range" && (
                     <div className="text-red-500 text-sm mb-4">
                       You are out of the allowed location range!
                     </div>
@@ -341,28 +449,27 @@ const FaceRecognitionAttendance = () => {
           {/* Attendance Marking Section */}
           <div className="flex flex-col justify-between space-y-4">
             <button
-              // onClick={handleMarkAttendance}
+              onClick={(e) => handleAttendanceSubmit(e, "Present")}
               disabled={
                 recognitionStatus !== "recognized" ||
-                locationStatus !== "verified"
+                locationStatus !== "Verified" ||
+                !isWithinRange
               }
-              className={`w-full md:w-auto px-8 py-4 rounded-lg font-semibold text-white transition-all duration-200 ${
-                recognitionStatus === "recognized" &&
-                locationStatus === "verified"
-                  ? "bg-green-500 hover:bg-green-600"
-                  : "bg-gray-400 cursor-not-allowed"
-              }`}
+              className={`w-full md:w-auto px-8 py-4 rounded-lg font-semibold text-white transition-all bg-green-600 hover:bg-green-800 duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed `}
               aria-label="Mark attendance"
             >
               Mark Attendance
             </button>
             <button
-              // onClick={() => handleAttendance("out")}
+              onClick={(e) => handleAttendanceSubmit(e, "Leave")}
               disabled={
-                recognitionStatus === "recognized" &&
-                locationStatus === "verified"
+                !!(
+                  recognitionStatus === "recognized" &&
+                  locationStatus === "Verified" &&
+                  isWithinRange
+                )
               }
-              className="bg-red-600 hover:bg-red-700 text-white py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 disabled:opacity-50"
+              className="bg-red-600 hover:bg-red-700 text-white py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 disabled:cursor-not-allowed  disabled:opacity-50"
               aria-label="Clock Out"
             >
               Leave

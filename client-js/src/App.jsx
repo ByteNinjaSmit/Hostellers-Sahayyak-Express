@@ -41,6 +41,8 @@ import DeveloperLogin from "./pages/dev/Login-Dev";
 import { DeveloperLayout } from "./components/layout/Developer-Layout";
 import SeeAllAdmins from "./pages/dev/All-Admins";
 import GrievanceManagementUser from "./pages/client/All-Issues";
+import HostelManagement from "./pages/admin/Hostel-Location";
+import StudentAttendancePage from "./pages/client/Attendance";
 
 const App = () => {
   const location = useLocation();
@@ -108,6 +110,11 @@ const App = () => {
             path="take-attendance"
             element={<FaceRecognitionAttendance />}
           />
+          <Route
+            exact
+            path="attendance"
+            element={<StudentAttendancePage />}
+          />
         </Route>
         {/* Admin Routes */}
         <Route exact path="/admin" element={<AdminLayout />}>
@@ -154,6 +161,11 @@ const App = () => {
             exact
             path="overview-attendance/view-attendance/:id"
             element={<ViewAttendance />}
+          />
+          <Route
+            exact
+            path="update-hostel-location"
+            element={<HostelManagement />}
           />
         </Route>
 

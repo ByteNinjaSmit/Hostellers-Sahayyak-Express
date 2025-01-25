@@ -11,10 +11,12 @@ import { useAuth } from "../../store/auth";
 import Webcam from "react-webcam";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-
+import { useGeolocated } from "react-geolocated";
+import axios from "axios";
 const FaceRecognitionAttendanceAdmin = () => {
+  const { API, user } = useAuth();
   const [isCameraActive, setIsCameraActive] = useState(false);
-  const [locationStatus, setLocationStatus] = useState("checking");
+  // const [locationStatus, setLocationStatus] = useState("checking");
   const [recognitionStatus, setRecognitionStatus] = useState("waiting");
   const [attendanceMarked, setAttendanceMarked] = useState(false);
   const [error, setError] = useState(null);
@@ -25,76 +27,88 @@ const FaceRecognitionAttendanceAdmin = () => {
   // --------------------------
   // Location Within range Logic in Specefic diameter
   //-----------------------
-  // const [isWithinRange, setIsWithinRange] = useState(false);
+  const [isWithinRange, setIsWithinRange] = useState(false);
+  const [currentDistance, setCurrentDistance] = useState(null);
+  const [locationStatus, setLocationStatus] = useState("unknown");
+  const [targetLatitude, setTargetLatitude] = useState(null);
+  const [targetLongitude, setTargetLongitude] = useState(null);
+  const [allowedRadius, setAllowedRadius] = useState(null);
+// console.log(user.hostelId);
 
-  // const Latitude = 19.48888466843967; //This is Limit
-  // const Longitude = 74.92649700810367; // This Is Limit
-  // const Radius = 50; // 50 Meter Radius
+  const getLocation = async()=>{
+    try {
+      const response = await axios.get(`${API}/api/admin/get-hostel-location/${user.hostelId}`)
+      const data = response.data;
+      setTargetLatitude(data.latitude);
+      setTargetLongitude(data.longitude);
+      setAllowedRadius(data.radius);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  useEffect(()=>{
+    getLocation();
+  },[])
 
-  // // Function to calculate distance between two coordinates using Haversine formula
-  // const haversineDistance = (lat1, lon1, lat2, lon2) => {
-  //   const R = 6371; // Earth radius in km
-  //   const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  //   const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  // const targetLatitude = 19.488729; //This is Limit
+  // const targetLongitude = 74.926598; // This Is Limit
+  // const allowedRadius = 50; // 50 Meter Radius
 
-  //   const a =
-  //     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-  //     Math.cos((lat1 * Math.PI) / 180) *
-  //       Math.cos((lat2 * Math.PI) / 180) *
-  //       Math.sin(dLon / 2) *
-  //       Math.sin(dLon / 2);
-  //   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  //   const distance = R * c * 1000; // Distance in meters
-  //   console.log(`Distance: ${distance}`);
-
-  //   return distance;
-  // };
+  // Haversine formula to calculate distance between two coordinates
+  const haversineDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371; // Earth radius in km
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLon = ((lon2 - lon1) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) ** 2;
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c * 1000; // Distance in meters
+  };
 
   // // Get user's current position
 
-  // const checkLocation = () => {
-  //   setIsWithinRange(false);
-  //   setLocationStatus("out of range");
-  //   navigator.geolocation.getCurrentPosition(
-  //     (position) => {
-  //       const { latitude, longitude, accuracy } = position.coords; // Get latitude, longitude, and accuracy
-  //       console.log(`Latitude: ${latitude}`);
-  //       console.log(`Longitude: ${longitude}`);
-  //       console.log(`Accuracy: ${accuracy} meters`);
+  // Function to verify user's location
+  const {
+    coords, // Latitude and Longitude
+    isGeolocationAvailable,
+    isGeolocationEnabled,
+    errorMessage,
+  } = useGeolocated({
+    positionOptions: {
+      enableHighAccuracy: true, // Disable high accuracy mode for faster results
+      timeout: 2000, // Timeout in milliseconds (set to 3 seconds for quicker response)
+      maximumAge: 0, // Prevent cached location usage
+    },
+    watchPosition: true, // Get location only once
+  });
 
-  //       // Check if the accuracy is good enough (e.g., within 50 meters)
-  //       if (accuracy <= 1000) {
-  //         // Calculate the distance between current position and target location
-  //         const distance = haversineDistance(
-  //           latitude,
-  //           longitude,
-  //           Latitude,
-  //           Longitude
-  //         );
+  // Check if the user is within range
+  const verifyLocation = () => {
+    if (coords) {
+      const { latitude, longitude } = coords;
+      const distance = haversineDistance(
+        latitude,
+        longitude,
+        targetLatitude,
+        targetLongitude
+      );
+      setCurrentDistance(distance);
 
-  //         if (distance <= Radius) {
-  //           setLocationStatus("verified");
-  //           setIsWithinRange(true); // User is within the allowed radius
-  //         } else {
-  //           setLocationStatus("out of range");
-  //           setIsWithinRange(false); // User is outside the allowed radius
-  //         }
-  //       } else {
-  //         console.log("low accuracy"); // Accuracy is 153377 meters is very low
-  //         setLocationStatus("low accuracy"); // Location accuracy is not good enough
-  //       }
-  //     },
-  //     (error) => {
-  //       setLocationStatus("error");
-  //       console.error("Error getting location", error);
-  //     },
-  //     {
-  //       enableHighAccuracy: true, // Request higher accuracy if possible
-  //       timeout: 5000, // Timeout for getting location (in milliseconds)
-  //       maximumAge: 0, // Do not use cached location
-  //     }
-  //   );
-  // };
+      if (distance <= allowedRadius) {
+        setLocationStatus("Verified");
+        setIsWithinRange(true);
+      } else {
+        setLocationStatus("Out of range");
+        setIsWithinRange(false);
+      }
+    } else {
+      setLocationStatus("Location not available.");
+      setIsWithinRange(false);
+    }
+  };
 
   //----------------------
   // Face Recognation Model
@@ -107,7 +121,7 @@ const FaceRecognitionAttendanceAdmin = () => {
   const [loading, setLoading] = useState(false);
   const [isModelLoad, setIsModelLoad] = useState(false);
   const [userImageGot, setUserImageGot] = useState(false);
-  const { API, user } = useAuth();
+
   const { userId, hostelId, date } = useParams();
 
   // Check in range or not
@@ -154,7 +168,7 @@ const FaceRecognitionAttendanceAdmin = () => {
         .detectAllFaces(refFace)
         .withFaceLandmarks()
         .withFaceDescriptors();
-      const faceMatcher = new faceapi.FaceMatcher(refFaceAiData,0.5);
+      const faceMatcher = new faceapi.FaceMatcher(refFaceAiData, 0.5);
 
       // Capture and compare frames continuously
       const intervalId = setInterval(async () => {
@@ -196,6 +210,8 @@ const FaceRecognitionAttendanceAdmin = () => {
             setRecognitionStatus(`recognized`);
             setStatus("Present");
 
+            verifyLocation();
+
             const drawBox = new faceapi.draw.DrawBox(detection.box, {
               label: "Hosteller", // replace with user.name
             });
@@ -219,12 +235,12 @@ const FaceRecognitionAttendanceAdmin = () => {
 
   // useEffect hook to run face mesh when the camera is active
   useEffect(() => {
-    if (isCameraActive && userImageGot ) {
+    if (isCameraActive && userImageGot && coords ) {
       // Load the face mesh model
       runFacialRecognition();
       // checkLocation();
     }
-  }, [isCameraActive, userImageGot ]);
+  }, [isCameraActive, userImageGot,coords]);
 
   //--------------------
   // Other Functions
@@ -305,7 +321,7 @@ const FaceRecognitionAttendanceAdmin = () => {
                   ref={webcamRef}
                   screenshotFormat="image/jpeg"
                   width="720"
-                  height="480"
+                  height="720"
                   videoConstraints={{
                     facingMode: "user", // Use front camera
                   }}
@@ -336,20 +352,19 @@ const FaceRecognitionAttendanceAdmin = () => {
             <div className="p-4 bg-gray-50 rounded-lg">
               <div className="flex items-center space-x-3">
                 <FaMapMarkerAlt
-                  className={`text-2xl ${
-                    locationStatus === "verified"
+                  className={`text-2xl ${locationStatus === "verified"
                       ? "text-green-500"
                       : "text-yellow-500"
-                  }`}
+                    }`}
                 />
                 <div>
                   <h3 className="font-semibold">Location Status</h3>
                   <p className="text-sm text-gray-600">
-                    {locationStatus === "verified"
+                    {locationStatus === "Verified"
                       ? "Within attendance zone"
                       : "Checking location..."}
                   </p>
-                  {locationStatus === "out of range" && (
+                  {locationStatus === "Out of range" && (
                     <div className="text-red-500 text-sm mb-4">
                       You are out of the allowed location range!
                     </div>
@@ -381,17 +396,13 @@ const FaceRecognitionAttendanceAdmin = () => {
           {/* Attendance Marking Section */}
           <div className="flex flex-col justify-between space-y-4">
             <button
-             onClick={(e) => handleAttendanceSubmit(e, "Present")}
+              onClick={(e) => handleAttendanceSubmit(e, "Present")}
               disabled={
-                recognitionStatus !== "recognized" 
-                // locationStatus !== "verified"
+                recognitionStatus !== "recognized" ||
+                locationStatus !== "Verified" ||
+                !isWithinRange
               }
-              className={`w-full md:w-auto px-8 py-4 rounded-lg font-semibold text-white transition-all duration-200 transform hover:scale-105 ${
-                recognitionStatus === "recognized"
-                // locationStatus === "verified"
-                  ? "bg-green-600 hover:bg-green-800"
-                  : "bg-gray-400 cursor-not-allowed"
-              }`}
+              className={`w-full md:w-auto px-8 py-4 rounded-lg font-semibold text-white transition-all bg-green-600 hover:bg-green-800 duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed `}
               aria-label="Mark attendance"
             >
               Mark Attendance : Present
@@ -399,23 +410,25 @@ const FaceRecognitionAttendanceAdmin = () => {
             <button
               onClick={(e) => handleAttendanceSubmit(e, "Leave")}
               disabled={
-                recognitionStatus === "recognized" 
-                //&&
-                //locationStatus === "verified"
+                !!(
+                  recognitionStatus === "recognized" &&
+                  locationStatus === "Verified" &&
+                  isWithinRange
+                )
               }
-              className="bg-red-600 hover:bg-red-700 text-white py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 disabled:opacity-50"
+              className="bg-red-600 hover:bg-red-700 text-white py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 disabled:cursor-not-allowed  disabled:opacity-50"
               aria-label="Clock Out"
             >
               Leave
             </button>
             <button
-             onClick={(e) => handleAttendanceSubmit(e, "Absent")}
+              onClick={(e) => handleAttendanceSubmit(e, "Absent")}
               disabled={
-                recognitionStatus === "recognized" 
-                //&&
-                //locationStatus === "verified"
+                (recognitionStatus === "recognized" &&
+                  locationStatus === "Verified" &&
+                  isWithinRange)
               }
-              className="bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:opacity-50"
+              className="bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed  focus:ring-opacity-50 disabled:opacity-50"
               aria-label="Clock Out"
             >
               Absent
@@ -423,11 +436,13 @@ const FaceRecognitionAttendanceAdmin = () => {
             <button
               onClick={(e) => handleAttendanceSubmit(e, "Late")}
               disabled={
-                recognitionStatus === "recognized" 
-                //&&
-                //locationStatus === "verified"
+                !!(
+                  recognitionStatus === "recognized" &&
+                  locationStatus === "Verified" &&
+                  isWithinRange
+                )
               }
-              className="bg-yellow-600 hover:bg-yellow-700 text-white py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50 disabled:opacity-50"
+              className="bg-yellow-600 hover:bg-yellow-700 text-white py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 disabled:cursor-not-allowed  focus:ring-yellow-500 focus:ring-opacity-50 disabled:opacity-50"
               aria-label="Clock Out"
             >
               Late

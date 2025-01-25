@@ -14,7 +14,7 @@ const Safety = require("../models/safety-model");
 const User = require("../models/user-model");
 const Faculty = require("../models/high-authority-model");
 const Attendance = require("../models/attendance-model");
-
+const HostelAddress = require("../models/hostel-location-model");
 // -----------
 //  GET ALl Issues
 // -------------
@@ -242,7 +242,7 @@ const updateIssue = async (req, res) => {
         const { issueid } = req.params;
 
         // Extract the status from the request body
-        const { status,actionLog } = req.body;
+        const { status, actionLog } = req.body;
 
         if (!status || !actionLog) {
             return res.status(400).json({ error: "All Fields are required" });
@@ -265,8 +265,8 @@ const updateIssue = async (req, res) => {
         // Try to find the document and update the status
         for (const model of models) {
             updatedDocument = await model.findByIdAndUpdate(
-                {_id:issueid},
-                { status: status, actionLog:actionLog }, // Update the status
+                { _id: issueid },
+                { status: status, actionLog: actionLog }, // Update the status
                 { new: true } // Return the updated document
             ).exec();
 
@@ -380,12 +380,12 @@ const changePasswordUser = async (req, res, next) => {
 const updateUser = async (req, res, next) => {
     try {
         const { userId } = req.params;
-        const { name, username, room, hostelId, password,face_image } = req.body;
+        const { name, username, room, hostelId, password, face_image } = req.body;
 
         if (!userId) {
             return res.status(400).json({ error: "User ID is required" })
         }
-        if (!name || !username || !room || !hostelId  ||!face_image) {
+        if (!name || !username || !room || !hostelId || !face_image) {
             return res.status(400).json({ error: "All fields are required" })
         }
         const updateData = {};
@@ -403,7 +403,7 @@ const updateUser = async (req, res, next) => {
             const hash_password = await bcrypt.hash(password, saltRound);
             updateData.password = hash_password;
         }
-        const updatedUser = await User.findByIdAndUpdate({_id:userId}, updateData, { new: true }).exec();
+        const updatedUser = await User.findByIdAndUpdate({ _id: userId }, updateData, { new: true }).exec();
         if (!updatedUser) {
             return res.status(404).json({ error: "User not found" })
         }
@@ -583,7 +583,7 @@ const putAttendanceOneByOneUserData = async (req, res, next) => {
         } else {
             // If the student doesn't exist, add them to the students array
             attendance.students.push({
-                student:userId,
+                student: userId,
                 status,
                 remarks: "", // Default remarks
             });
@@ -593,7 +593,7 @@ const putAttendanceOneByOneUserData = async (req, res, next) => {
         await attendance.save();
 
         // Respond to the client
-        return res.status(200).json({message: "Attendance Marked successfully",});
+        return res.status(200).json({ message: "Attendance Marked successfully", });
     } catch (error) {
         // Handle errors and pass them to the error-handling middleware
         next(error);
@@ -630,21 +630,159 @@ const getSingleHostelDateWise = async (req, res, next) => {
     }
 };
 
-module.exports = { 
-    updateIssueStatus, 
-    getIssue, 
+// Adding Hostel Address
+const newHostelAddr = async (req, res, next) => {
+    try {
+        const { hostelName, longitude, latitude, radius } = req.body;
+
+        // check all required
+        if (!hostelName || !longitude || !latitude || !radius) {
+            return res.status(400).json({ message: "All fields are required." });
+        }
+        // check is already exist or not
+        const isExist = await HostelAddress.findOne({ hostelName: hostelName });
+        if (isExist) {
+            return res.status(400).json({ message: "Hostel Address already exist." });
+        }
+        // Create a new hostel address document
+        const newHostelAddr = new HostelAddress({
+            hostelName: hostelName,
+            longitude: longitude,
+            latitude: latitude,
+            radius: radius
+        })
+        // Save the new document
+        await newHostelAddr.save();
+        // Respond with the new document
+        return res.status(201).json(newHostelAddr);
+    } catch (error) {
+        next(error);
+    }
+}
+
+// Get Location of hostel
+const getHostelLocation = async (req, res, next) => {
+    try {
+        const { name } = req.params;
+        if (!name) {
+            return res.status(400).json({ message: "Hostel name is required." })
+        }
+        const hostel = await HostelAddress.findOne({ hostelName: name })
+        if (!hostel) {
+            return res.status(404).json({ message: "Hostel not found." })
+        }
+        return res.status(200).json(hostel);
+    } catch (error) {
+        next(error);
+    }
+}
+
+// Update Hostel Location
+const updateHostelLocation = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        // Validate hostel name from params
+        if (!id) {
+            return res.status(400).json({ message: "Hostel id is required in the URL." });
+        }
+
+        // Destructure and validate required fields from the request body
+        const { hostelName, longitude, latitude, radius } = req.body;
+        if (!hostelName || !longitude || !latitude || !radius) {
+            return res.status(400).json({ message: "All fields (hostelName, longitude, latitude, radius) are required." });
+        }
+
+        // Check if the hostel address exists
+        const existingHostel = await HostelAddress.findOne({ _id: id });
+        if (!existingHostel) {
+            return res.status(404).json({ message: `Hostel address not found.` });
+        }
+
+        // Update the hostel address
+        const updatedHostelAddr = await HostelAddress.findOneAndUpdate(
+            { _id:id }, // Find by hostelName
+            {
+                $set: {
+                    hostelName: hostelName,
+                    longitude,
+                    latitude,
+                    radius
+                }
+            }, // Update fields
+            { new: true } // Return the updated document
+        );
+
+        // Respond with the updated hostel address
+        res.status(200).json({
+            message: "Hostel location updated successfully.",
+            data: updatedHostelAddr
+        });
+    } catch (error) {
+        // Pass error to the next middleware
+        next(error);
+    }
+};
+// Delete Hostel Location
+const deleteHostelLocation = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        // Validate that the hostel name is provided
+        if (!id) {
+            return res.status(400).json({ message: "Hostel id is required in the URL." });
+        }
+
+        // Check if the hostel exists
+        const existingHostel = await HostelAddress.findOne({ _id: id });
+        if (!existingHostel) {
+            return res.status(404).json({ message: `Hostel address for "${id}" not found.` });
+        }
+
+        // Delete the hostel address
+        await HostelAddress.deleteOne({ _id: id });
+
+        // Respond with a success message
+        res.status(200).json({
+            message: `Hostel location deleted successfully.`,
+        });
+    } catch (error) {
+        // Pass the error to the next middleware
+        next(error);
+    }
+};
+
+// GET ALL Hostels Location
+const getAllHostelLocation = async (req, res, next) => {
+    try {
+        const hostels = await HostelAddress.find();
+        res.status(200).json(hostels);
+    } catch (error) {
+        next(error);
+    }
+}
+
+
+module.exports = {
+    updateIssueStatus,
+    getIssue,
     updateIssue,
-    getAllIssues, 
-    getUsers, 
-    getUser, 
-    deleteUser, 
-    updateUser, 
-    changePasswordUser, 
-    getHostelUsers, 
-    newAttendance, 
-    getAllAttendance, 
-    getAttendanceById, 
+    getAllIssues,
+    getUsers,
+    getUser,
+    deleteUser,
+    updateUser,
+    changePasswordUser,
+    getHostelUsers,
+    newAttendance,
+    getAllAttendance,
+    getAttendanceById,
     updateAttendance,
     putAttendanceOneByOneUserData,
     getSingleHostelDateWise,
+    newHostelAddr,
+    getHostelLocation,
+    updateHostelLocation,
+    deleteHostelLocation,
+    getAllHostelLocation,
 };

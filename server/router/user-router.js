@@ -24,6 +24,17 @@ router.route("/store-image").post(userControllers.storeUserImage);
 // GET User Image
 router.route("/get-image/:userId").get(userControllers.getUserImage)
 
+// GET Attendace All Record
+router.route("/get-attendance-record/:id").get(userControllers.getAttendance);
+
+// GET Hostel Location Address
+router.route("/get-hostel-location/:name").get(userControllers.getHostelLocation);
+
+// Mark Self Attendance
+router.route("/mark-self-attendance").post(userControllers.putAttendanceOneByOneUserData);
+
+// GET Attendance Current By ID and Current Date
+router.route("/get-attendance-current/:id/:curentdate/:name").get(userControllers.getTodaysAttendance);
 
 
 

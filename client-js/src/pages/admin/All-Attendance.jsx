@@ -7,10 +7,12 @@ import {
   FaChevronLeft,
   FaChevronRight,
 } from "react-icons/fa";
+import { MdLocationPin } from "react-icons/md";
+
 import { format } from "date-fns";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import AdminSidebar from "../../components/Admin-Sidebar";
-import { Link, } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth } from "../../store/auth";
 
 export default function HostelAttendanceOverview() {
@@ -21,7 +23,7 @@ export default function HostelAttendanceOverview() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [attendanceData, setAttendanceData] = useState([]);
-  const { user, isLoggedIn, API } = useAuth();
+  const { user, isLoggedIn, isHighAuth, API } = useAuth();
   const [loading, setLoading] = useState(false);
   const [isAttendanceTakenToday, setIsAttendanceTakenToday] = useState(false);
   const [isRector, setIsRector] = useState(false);
@@ -97,22 +99,23 @@ export default function HostelAttendanceOverview() {
   useEffect(() => {
     const checkAttendanceForToday = () => {
       if (!attendanceData || !user?.hostelId) return;
-    
+
       const today = new Date().toISOString().split("T")[0]; // Get current date in YYYY-MM-DD format
-    
+
       // Find the record of attendance for today and the user's hostel
       const todayAttendance = attendanceData?.find(
         (record) =>
           record?.hostel === user?.hostelId && record.date.startsWith(today)
       );
-    
+
       if (todayAttendance) {
         // Parse the attendance timestamp
         const attendanceTime = new Date(todayAttendance?.createdAt); // Means From createdAt
         const currentTime = new Date();
-    
+
         // Check if the attendance was taken within the last 2 hours
-        const timeDiffInHours = (currentTime - attendanceTime) / (1000 * 60 * 60); // Time difference in hours
+        const timeDiffInHours =
+          (currentTime - attendanceTime) / (1000 * 60 * 60); // Time difference in hours
         if (timeDiffInHours <= 2) {
           setIsAttendanceTakenToday(false);
         } else {
@@ -122,7 +125,6 @@ export default function HostelAttendanceOverview() {
         setIsAttendanceTakenToday(false); // No attendance taken today
       }
     };
-    
 
     checkAttendanceForToday();
   }, [attendanceData, user?.hostelId]);
@@ -223,9 +225,7 @@ export default function HostelAttendanceOverview() {
         </header>
         {isRector && (
           <div className="mb-6 sm:mb-8 lg:mb-12 p-4">
-            <Link
-              to={`/admin/overview-attendance/take-attendance`}
-            >
+            <Link to={`/admin/overview-attendance/take-attendance`}>
               <button
                 disabled={isAttendanceTakenToday}
                 className={`w-full sm:w-auto bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-6 rounded flex items-center justify-center transition duration-300 ease-in-out transform hover:scale-105
@@ -235,6 +235,16 @@ export default function HostelAttendanceOverview() {
                 {isAttendanceTakenToday
                   ? "Attendance Already Taken"
                   : "Take Today's Attendance"}
+              </button>
+            </Link>
+          </div>
+        )}
+        {isHighAuth && (
+          <div className="mb-2 sm:mb-2 lg:mb-2 p-4 flex justify-center sm:justify-start">
+            <Link to="/admin/update-hostel-location">
+              <button className="flex items-center gap-2 bg-blue-600 text-white py-2 px-4 rounded-md shadow-md hover:bg-blue-700 transition duration-300">
+                <MdLocationPin className="text-xl" />
+                Update Hostel Location
               </button>
             </Link>
           </div>
